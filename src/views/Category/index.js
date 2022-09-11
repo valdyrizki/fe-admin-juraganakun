@@ -19,7 +19,7 @@ function Category(props) {
   const getCategory = async () => {
     setLoading(true)
     try{
-        let {data} = await axios.get(`${ip}/category/`,{
+        let {data} = await axios.get(`${ip}/category`,{
             headers: {
                 'Authorization': 'Bearer '+token
             }

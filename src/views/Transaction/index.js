@@ -6,12 +6,13 @@ import { tokenAtom } from '../../store/user';
 import { NavLink } from 'react-router-dom';
 import { showConfirm, showError, showSuccess } from '../../Component/Template/Msg';
 import { serverIp } from '../../store/setting';
-import { getStsTransaction } from '../../Component/Helpers';
+import { decimalFormatter, getStsTransaction } from '../../Component/Helpers';
 
 function Transaction(props) {
   const [transactions,setTransactions] = useState([])
   const token = useRecoilValue(tokenAtom)
   const ip = useRecoilValue(serverIp)
+  const [filterStatus,setFilterStatus] = useState('99')
   const [filteredTransactions,setFilteredTransactions] = useState(transactions)
   const [searchBox,setSearchBox] = useState('')
   const [loading,setLoading] = useState(false)
@@ -21,7 +22,7 @@ function Transaction(props) {
         if(confirmed){
             try{
                 setLoading(true)
-                let {data} = await axios.put(`${ip}/transaction/setpending/`,{"invoice_id":invoice_id},
+                let {data} = await axios.put(`${ip}/transaction/setpending`,{"invoice_id":invoice_id},
                 {
                     headers: {
                         'Authorization': 'Bearer '+token
@@ -47,7 +48,7 @@ function Transaction(props) {
         if(confirmed){
             try{
                 setLoading(true)
-                let {data} = await axios.put(`${ip}/transaction/setconfirm/`,{"invoice_id":invoice_id},
+                let {data} = await axios.put(`${ip}/transaction/setconfirm`,{"invoice_id":invoice_id},
                 {
                     headers: {
                         'Authorization': 'Bearer '+token
@@ -61,7 +62,7 @@ function Transaction(props) {
                 getTransactions()
                 setLoading(false)
             }catch(e){
-                console.log(e.message);
+                console.error(e.message);
                 setLoading(false)
             }
         }
@@ -73,7 +74,7 @@ function Transaction(props) {
         if(confirmed){
             try{
                 setLoading(true)
-                let {data} = await axios.put(`${ip}/transaction/setrefund/`,{"invoice_id":invoice_id},
+                let {data} = await axios.put(`${ip}/transaction/setrefund`,{"invoice_id":invoice_id},
                 {
                     headers: {
                         'Authorization': 'Bearer '+token
@@ -87,7 +88,7 @@ function Transaction(props) {
                 getTransactions()
                 setLoading(false)
             }catch(e){
-                console.log(e.message);
+                console.error(e.message);
                 setLoading(false)
             }
         }
@@ -99,7 +100,7 @@ function Transaction(props) {
         if(confirmed){
             try{
                 setLoading(true)
-                let {data} = await axios.put(`${ip}/transaction/setcancel/`,{"invoice_id":invoice_id},
+                let {data} = await axios.put(`${ip}/transaction/setcancel`,{"invoice_id":invoice_id},
                 {
                     headers: {
                         'Authorization': 'Bearer '+token
@@ -113,7 +114,7 @@ function Transaction(props) {
                 getTransactions()
                 setLoading(false)
             }catch(e){
-                console.log(e.message);
+                console.error(e.message);
                 setLoading(false)
             }
         }
@@ -134,11 +135,13 @@ function Transaction(props) {
         setLoading(false)
         
     }catch(e){
-        console.log(e.message);
+        console.error(e.message);
         setLoading(false)
-    }
-    
-    
+    } 
+  }
+
+  const onChangeFilter = (e)=>{
+    setFilterStatus(e.target.value)
   }
 
   useEffect(() => {
@@ -146,10 +149,16 @@ function Transaction(props) {
 }, []);
 
 useEffect(() => {
-    setFilteredTransactions(
-        transactions.filter((transaction) => transaction.invoice_id.toUpperCase().indexOf(searchBox.toUpperCase()) !== -1)
-    );
-}, [transactions,searchBox]);
+    if (filterStatus === '99') {
+        setSearchBox('')
+        setFilteredTransactions(transactions)
+    }else{
+        setFilteredTransactions(
+            transactions.filter((transaction) => parseInt(transaction.status) === parseInt(filterStatus) && transaction.invoice_id.toUpperCase().indexOf(searchBox.toUpperCase()) !== -1)
+        )
+    }
+
+}, [transactions,searchBox,filterStatus]);
 
     return (
         <div className="content-wrapper">
@@ -164,9 +173,23 @@ useEffect(() => {
                       <NavLink to="/transaction/create" className="btn bg-primary">
                         <i className="fas fa-plus"></i> Add Transaction
                       </NavLink>
-                      <div className='float-right'>
-                          <input type="text" value={searchBox} onChange={(e) => setSearchBox(e.target.value)} name='searchBox' className="form-control" placeholder="Search invoice" />
+                      <div className='row float-right'>
+                        <div className='col-6 form-group justify-content-end'>
+                            <select className='form-control' id="filter" name="filter" onChange={(e) => onChangeFilter(e)} value={filterStatus}>
+                                <option value='99'>SHOW ALL</option>
+                                <option value='0'>PENDING</option>
+                                <option value='1'>CONFIRM</option>
+                                <option value='2'>REFUND</option>
+                                <option value='9'>CANCEL</option>
+                            </select>
+                        </div>
+                        <div className='col-6 form-group justify-content-end'>
+                            <input type="text" value={searchBox} onChange={(e) => setSearchBox(e.target.value)} name='searchBox' className="form-control" placeholder="Search invoice" />
+                        </div>
                       </div>
+
+                        
+
                     </div>
                     <div className="card-body">
                       
@@ -189,7 +212,7 @@ useEffect(() => {
                                 <tr key={transaction.invoice_id}>
                                   <td>{index+1}</td>
                                   <td>{transaction.invoice_id}</td>
-                                  <td>{transaction.total_price}</td>
+                                  <td>Rp{decimalFormatter(transaction.total_price)}</td>
                                   <td>{transaction.bank}</td>
                                   <td>{getStsTransaction(transaction.status)}</td>
                                   <td>{transaction.description}</td>

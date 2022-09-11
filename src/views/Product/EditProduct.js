@@ -62,7 +62,6 @@ function EditProduct(props) {
     const onSubmitHandler = (e) => { //update handler
         e.preventDefault()
         inputs.description = description
-        console.log(inputs);
         showConfirm(async function (confirmed) {
             if (confirmed) {
                 try{
@@ -74,12 +73,11 @@ function EditProduct(props) {
                         },
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                         history.push("/product")
                         refreshProducts()
                     }else{
-                        console.log(data.data);
+                        console.error(data.data);
                         showError(data.msg)
                     }
                 }catch(e){

@@ -55,7 +55,6 @@ function Login(props) {
                 history.push("/home") 
             }else{
                 showError(data.msg)
-                console.log(data);
             }
         }catch(e){
             showError(e.message)

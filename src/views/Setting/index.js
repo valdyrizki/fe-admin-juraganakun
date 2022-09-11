@@ -22,10 +22,9 @@ function Category(props) {
             }
         })
         setSetting(data.data)
-        console.log(data.data);
         setLoading(false)
     }catch(e){
-        console.log(e.message);
+        console.error(e.message);
         setLoading(false)
     }
   }
@@ -52,11 +51,11 @@ function Category(props) {
             }
             setLoading(false)
         } catch (e) {
-            console.log(e.message);
+            console.error(e.message);
             setLoading(false)
         }
     }catch(e){
-        console.log(e.getMessage);
+        console.error(e.getMessage);
     }
   }
 

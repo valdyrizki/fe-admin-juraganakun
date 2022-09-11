@@ -3,12 +3,12 @@ import { atom, selector } from "recoil";
 
 export const serverIp = atom({
     key : 'serverIp-Atom',
-    default : 'http://localhost:8000/api'
+    default : 'http://be.juraganakun.com/api'
 })
 
 export const serverUrl = atom({
     key : 'serverUrl-Atom',
-    default : 'http://localhost:8000/'
+    default : 'http://be.juraganakun.com/'
 })
 
 export const getSettings = selector({

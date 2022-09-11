@@ -1,5 +1,5 @@
 export function getServerIP() {
-    return 'http://localhost:8000/api'
+    return 'http://be.juraganakun.com/api'
 }
 
 export const decimalFormatter = (angka) => {

@@ -27,7 +27,7 @@ function CreateCategory(props) {
                         "category_name" : category_name
                     }
                     try {
-                        let {data} = await axios.post(`${ip}/category/`,
+                        let {data} = await axios.post(`${ip}/category`,
                         category,
                         {
                             headers: {
@@ -35,11 +35,10 @@ function CreateCategory(props) {
                             }
                         });
                         if(data.isSuccess){
-                            console.log(data);
                             showSuccess(data.msg)
                             history.push("/category")
                         }else{
-                            console.log(data.data);
+                            console.error(data.data);
                             showError(data.msg)
                         }
                     } catch (e) {

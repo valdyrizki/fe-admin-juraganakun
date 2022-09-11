@@ -28,7 +28,6 @@ function Dashboard(props) {
 
             if(data.isSuccess){
                 setDashboard(data.data)
-                console.log(data.data);
                 setLoading(false)
             }else{
                 console.error(data);

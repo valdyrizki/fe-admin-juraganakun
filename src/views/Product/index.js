@@ -5,7 +5,7 @@ import { useRecoilValue } from "recoil";
 import { tokenAtom } from '../../store/user';
 import { NavLink } from 'react-router-dom';
 import { showConfirm, showError, showSuccess } from '../../Component/Template/Msg';
-import { serverIp } from '../../store/setting';
+import { serverIp, serverUrl } from '../../store/setting';
 import { decimalFormatter, getStsProduct } from '../../Component/Helpers';
 
 function Product(props) {
@@ -16,13 +16,14 @@ function Product(props) {
   const [searchBox,setSearchBox] = useState('')
   const [loading,setLoading] = useState(false)
   const ip = useRecoilValue(serverIp)
+  const url = useRecoilValue(serverUrl)
 
   const onDeleteHandler = (product_id) =>{
     showConfirm(async function (confirmed) {
         if(confirmed){
             try{
                 setLoading(true)
-                let {data} = await axios.delete(`${ip}/product/destroy/`,
+                let {data} = await axios.delete(`${ip}/product/destroy`,
                 {
                     headers: {
                         'Authorization': 'Bearer '+token
@@ -38,7 +39,7 @@ function Product(props) {
                 }
                 setLoading(false)
             }catch(e){
-                console.log(e.message);
+                console.error(e.message);
                 setLoading(false)
             }
         }
@@ -62,7 +63,7 @@ function Product(props) {
         setProducts(data.data)
         setLoading(false)
     }catch(e){
-        console.log(e.message);
+        console.error(e.message);
         setLoading(false)
     }
   }
@@ -123,7 +124,7 @@ function Product(props) {
                                   <td>{getStsProduct(product.status)}</td>
                                   {/* <td><div dangerouslySetInnerHTML={{ __html: product.description}}></div></td> */}
                                   <td>
-                                    <img src={`http://localhost:8000/${product.path}`} width="100px" height="100px" alt=''/>
+                                    <img src={url+product.path} width="100px" height="100px" alt=''/>
                                   </td>
                                   <td>
                                     <NavLink to={`/product/edit/${product.product_id}`} className="btn bg-primary btn-xs mr-2">

@@ -61,7 +61,6 @@ function CreateTransaction(props) {
     const onSubmitHandler = (e) => { //upload stock handler
         e.preventDefault()
         inputs.products = carts
-        console.log(inputs);
         showConfirm(async function (confirmed) {
             if (confirmed) {
                 try{
@@ -72,12 +71,11 @@ function CreateTransaction(props) {
                         },
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                         history.push("/transaction")
                         // refreshProducts()
                     }else{
-                        console.log(data.data);
+                        console.error(data.data);
                         showError(data.msg)
                     }
                 }catch(e){

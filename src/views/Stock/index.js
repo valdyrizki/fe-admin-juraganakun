@@ -51,16 +51,14 @@ export default function Stock(props) {
                         },
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                         history.push("/product")
                         // refreshProducts()
                     }else{
-                        console.log(data.data);
                         showError(data.msg)
                     }
                 }catch(e){
-                    console.log(e.getMessage);
+                    console.error(e.getMessage);
                 }
             }
         });

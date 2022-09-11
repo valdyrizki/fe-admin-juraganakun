@@ -8,7 +8,7 @@ const getCategory = selector({
         let obj = [];
         const ip = get(serverIp)
         try{
-            let {data} = await axios.get(`${ip}/category/`,{
+            let {data} = await axios.get(`${ip}/category`,{
                 headers: {
                     'Authorization': 'Bearer '+JSON.parse(localStorage.getItem('token'))
                 }

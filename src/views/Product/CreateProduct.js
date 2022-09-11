@@ -62,11 +62,10 @@ function CreateProduct(props) {
 
     const onSubmitHandler = (e) => {
         e.preventDefault()
-        console.log(inputs);
         showConfirm(async function (confirmed) {
             if (confirmed) {
                 try{
-                    let {data} = await axios.post(`${ip}/product/`,
+                    let {data} = await axios.post(`${ip}/product`,
                     inputs,
                     {
                         headers: {
@@ -75,12 +74,11 @@ function CreateProduct(props) {
                         }
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                         history.push("/product")
                         refreshProducts()
                     }else{
-                        console.log(data.data);
+                        console.error(data.data);
                         showError(data.msg)
                     }
                 }catch(e){

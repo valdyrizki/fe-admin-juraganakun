@@ -72,7 +72,6 @@ function DetailTransaction(props) {
                     "invoice_id" : invoice_id
                 }
             })
-            console.log(data);
             setComments(data.data)
             setLoadingComment(false)
             
@@ -98,10 +97,9 @@ function DetailTransaction(props) {
                         },
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                     }else{
-                        console.log(data.data);
+                        console.error(data.data);
                         showError(data.msg)
                     }
                     getComments();
@@ -159,11 +157,10 @@ function DetailTransaction(props) {
                         }
                     });
                     if(data.isSuccess){
-                        console.log(data);
                         showSuccess(data.msg)
                         getComments();
                     }else{
-                        console.log(data.data);
+                        console.error(data.data);
                         showError(data.msg)
                     }
                 } catch (e) {
