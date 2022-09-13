@@ -50,6 +50,18 @@ export function getStsProduct(sts) {
     }
 }
 
+export function getStsFileProduct(sts) {  
+    switch (sts) {
+        case 0:
+            return "READY"
+        case 1:
+            return "SOLD"
+    
+        default:
+            return "READY"
+    }
+}
+
 export function getFormatDate(date){
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),

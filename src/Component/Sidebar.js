@@ -68,12 +68,18 @@ function AppMenu(props) {
                     <NavLink to="/stock" className="nav-link">
                       <i className="fas fa-boxes nav-icon"></i>
                       <p>Stock</p>
-                    </NavLink>
+                    </NavLink>  
                   </li>
                   <li className="nav-item">
                     <NavLink to="/transaction" className="nav-link">
                       <i className="fas fa-money-check nav-icon"></i>
                       <p>Transaction</p>
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <NavLink to="/file" className="nav-link">
+                      <i className="fas fa-folder nav-icon"></i>
+                      <p>File Manager</p>
                     </NavLink>
                   </li>
                   <li className="nav-item">

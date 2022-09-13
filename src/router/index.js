@@ -20,6 +20,7 @@ import Stock from '../views/Stock';
 import Transaction from '../views/Transaction';
 import CreateTransaction from '../views/Transaction/CreateTransaction';
 import DetailTransaction from '../views/Transaction/DetailTransaction';
+import FileManager from '../views/FileManager';
 
 
 function Router(props) {
@@ -125,6 +126,15 @@ function Router(props) {
                     <Authenticated>
                         <Template>
                             <DetailTransaction />
+                        </Template>
+                    </Authenticated>
+                </Route>
+
+                
+                <Route exact path='/file'>
+                    <Authenticated>
+                        <Template>
+                            <FileManager />
                         </Template>
                     </Authenticated>
                 </Route>
