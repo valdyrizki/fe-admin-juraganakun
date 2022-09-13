@@ -103,7 +103,7 @@ function CreateTransaction(props) {
     }
 
     const addProduct = () => {
-        if(order.qty > stock){
+        if(parseInt(order.qty) > parseInt(stock)){
             showError("Pesanan melampaui stock, stock saat ini : "+stock)
         }else{
             setCarts((current)=>[...current,order])
@@ -113,14 +113,14 @@ function CreateTransaction(props) {
 
     return (
         <div className="content-wrapper">
-            <ContentHeader title="Upload Stock" parentTitle="Stock"/> 
+            <ContentHeader title="Create Transaction" parentTitle="Transaction"/> 
             <section className="content">
                 <NavLink to="/transaction" className="btn bg-dark mb-2">
                     <i className="fas fa-arrow-left"></i> Back
                 </NavLink>
                 <div className="card card-primary">
                     <div className="card-header">
-                        <h3 className="card-title">Form Stock</h3>
+                        <h3 className="card-title">Form Input</h3>
                     </div>
                     <form onSubmit={onSubmitHandler}>
                         <div className="card-body">
