@@ -21,6 +21,9 @@ import Transaction from '../views/Transaction';
 import CreateTransaction from '../views/Transaction/CreateTransaction';
 import DetailTransaction from '../views/Transaction/DetailTransaction';
 import FileManager from '../views/FileManager';
+import JournalCategory from '../views/JournalCategory';
+import CreateJournalCategory from '../views/JournalCategory/CreateJournalCategory';
+import EditJournalCategory from '../views/JournalCategory/EditJournalCategory';
 
 
 function Router(props) {
@@ -135,6 +138,31 @@ function Router(props) {
                     <Authenticated>
                         <Template>
                             <FileManager />
+                        </Template>
+                    </Authenticated>
+                </Route>
+
+                
+
+                {/* Category Module */}
+                <Route exact path='/journal-category'>
+                    <Authenticated>
+                        <Template>
+                            <JournalCategory />
+                        </Template>
+                    </Authenticated>
+                </Route>
+                <Route exact path='/journal-category/create'>
+                    <Authenticated>
+                        <Template>
+                            <CreateJournalCategory />
+                        </Template>
+                    </Authenticated>
+                </Route>
+                <Route exact path='/journal-category/edit/:id'>
+                    <Authenticated>
+                        <Template>
+                            <EditJournalCategory />
                         </Template>
                     </Authenticated>
                 </Route>

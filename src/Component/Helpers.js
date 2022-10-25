@@ -1,7 +1,3 @@
-export function getServerIP() {
-    return 'http://be.juraganakun.com/api'
-}
-
 export const decimalFormatter = (angka) => {
     let angkaToString = angka.toString();
     var number_string = angkaToString.replace(/[^,\d]/g, ''),
@@ -59,6 +55,18 @@ export function getStsFileProduct(sts) {
     
         default:
             return "READY"
+    }
+}
+
+export function getStsDbCr(sts) {  
+    switch (sts) {
+        case 0:
+            return "DEBET"
+        case 1:
+            return "CREDIT"
+    
+        default:
+            return "DEBET"
     }
 }
 

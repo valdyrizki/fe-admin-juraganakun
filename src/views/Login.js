@@ -1,10 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
-import { getServerIP } from '../Component/Helpers';
 import { showError, showSuccess } from '../Component/Template/Msg';
-import { useRecoilState,useSetRecoilState } from "recoil";
+import { useRecoilState,useRecoilValue,useSetRecoilState } from "recoil";
 import { authAtom, tokenAtom, userAtom } from '../store/user';
+import { serverIp } from '../store/setting';
 
 function Login(props) {
     const [email,setEmail] = useState('')
@@ -14,6 +14,7 @@ function Login(props) {
     const [auth,setAuth] = useRecoilState(authAtom)
     const setUser = useSetRecoilState(userAtom)
     const setToken = useSetRecoilState(tokenAtom)
+    const ip = useRecoilValue(serverIp)
 
     useEffect(() => {
         console.log(auth);
@@ -26,7 +27,7 @@ function Login(props) {
         e.preventDefault()
         
         try{
-            let response = await axios.post(`${getServerIP()}/auth/login`,
+            let response = await axios.post(`${ip}/auth/login`,
             {
                 "email":email,
                 "password":password

@@ -43,7 +43,7 @@ useEffect(() => {
         setFilteredFiles(
             files.filter((file) => 
                 String(file.invoice_id).indexOf(searchBox.toUpperCase()) !== -1 || 
-                String(file.filename).indexOf(searchBox.toUpperCase()) !== -1 ||
+                String(file.filename.toUpperCase()).indexOf(searchBox.toUpperCase()) !== -1 ||
                 String(getStsFileProduct(file.status)).indexOf(searchBox.toUpperCase()) !== -1 
         ))
     }
@@ -70,8 +70,8 @@ useEffect(() => {
                               <thead>
                                 <tr>
                                   <th>No</th>
-                                  <th>Product ID</th>
                                   <th>Invoice</th>
+                                  <th>Product ID</th>
                                   <th>File Name</th>
                                   <th>Path</th>
                                   <th>Status</th>

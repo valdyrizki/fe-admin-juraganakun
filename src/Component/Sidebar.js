@@ -11,10 +11,10 @@ function AppMenu(props) {
         <div>
             <aside className="main-sidebar sidebar-dark-primary elevation-4">
             {/* <!-- Brand Logo --> */}
-            <a href="index3.html" className="brand-link">
-              <img src="dist/img/AdminLTELogo.png" alt="AdminLTE" className="brand-image img-circle elevation-3" style={{opacity: .8}} />
-              <span className="brand-text font-weight-light">AdminLTE 3</span>
-            </a>
+            <NavLink to="/home" className="brand-link text-center">
+              <i className="fab fa-vimeo-v mr-2"/>
+              <span className="brand-text font-weight-light">CV. VALDIGI</span>
+            </NavLink>
 
             {/* <!-- Sidebar --> */}
             <div className="sidebar"> 
@@ -88,6 +88,43 @@ function AppMenu(props) {
                       <p>Setting</p>
                     </NavLink>
                   </li>
+                  <li className="nav-item">
+                    <NavLink to="/report" className="nav-link">
+                      <i className="fas fa-chart-line nav-icon"></i>
+                      <p>Report</p>
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
+                    <a href="/#" className="nav-link">
+                      <i className="nav-icon fas fa-book"></i>
+                      <p>
+                        Journal
+                        <i className="fas fa-angle-left right"></i>
+                      </p>
+                    </a>
+                    <ul className="nav nav-treeview">
+                      <li className="nav-item">
+                        <a href="/journal-category" className="nav-link">
+                          <i className="far fa-circle nav-icon"></i>
+                          <p>Journal Category</p>
+                        </a>
+                      </li>
+                      <li className="nav-item">
+                        <a href="/journal-account" className="nav-link">
+                          <i className="far fa-circle nav-icon"></i>
+                          <p>Journal Account</p>
+                        </a>
+                      </li>
+                      <li className="nav-item">
+                        <a href="/journal-transaction" className="nav-link">
+                          <i className="far fa-circle nav-icon"></i>
+                          <p>Journal Transaction</p>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                
 
 
 

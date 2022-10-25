@@ -12,6 +12,16 @@ export function showMsg(msg) {
   })
 }
 
+export function showFlashMsg(msg){
+  Swal.fire({
+    position: 'top-end',
+    icon: 'success',
+    title: msg,
+    showConfirmButton: false,
+    timer: 1000
+  })
+}
+
 export function showSuccess(msg) {
   Swal.fire(
     'Success!',

@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
 import { useRecoilValue } from 'recoil';
 import ContentHeader from '../../Component/ContentHeader';
 import { decimalFormatter, downloadFile, getFormatDate } from '../../Component/Helpers';
-import { showConfirm, showError, showSuccess } from '../../Component/Template/Msg';
+import { showConfirm, showError, showFlashMsg, showSuccess } from '../../Component/Template/Msg';
 import { serverIp } from '../../store/setting';
 import { tokenAtom } from '../../store/user';
 
@@ -25,6 +25,11 @@ function DetailTransaction(props) {
     const [transactionDetails,setTransactionDetails] = useState([])
     const [loading,setLoading] = useState(false)
     const [loadingComment,setLoadingComment] = useState(false)
+    const [clipboard] = useState(
+`INVOICE : #${invoice_id}
+Terimakasih sudah order di www.juraganakun.com, ditunggu orderan selanjutnya yaaa 😁
+untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
+    )
     const token = useRecoilValue(tokenAtom)
     const ip = useRecoilValue(serverIp)
     const current = new Date();
@@ -48,7 +53,6 @@ function DetailTransaction(props) {
                 }
             })
             obj = data.data
-            console.log(obj);
             setTransaction(obj)
             setTransactionDetails(obj.transaction_details)
             setProductFiles(obj.product_files)
@@ -130,6 +134,7 @@ function DetailTransaction(props) {
     }
 
     const downloadFileComment = async(comment_file) =>{
+        setLoading(true)
         try{
             let response = await axios.post(`${ip}/comment/downloadbycode`,{code:comment_file.code},
             {
@@ -143,11 +148,13 @@ function DetailTransaction(props) {
         }catch(e){
             console.log(e.getMessage);
         }
+        setLoading(false)
     }
 
     const deleteComment = async(comment) =>{
         showConfirm(async function (confirmed) {
             if (confirmed) {
+                setLoading(true)
                 try {
                     let {data} = await axios.put(`${ip}/comment/delete`,
                     {id:comment.id},
@@ -166,11 +173,13 @@ function DetailTransaction(props) {
                 } catch (e) {
                     console.log(e.message);
                 }
+                setLoading(false)
             }
         });
     }
 
     const downloadAllFile = async()=>{
+        setLoading(true)
         try{
             let response = await axios.post(`${ip}/product/downloadbyinvoice`,{invoice_id:invoice_id},
             {
@@ -184,7 +193,22 @@ function DetailTransaction(props) {
         }catch(e){
             console.log(e.getMessage);
         }
+        setLoading(false)
     }
+
+    function unsecuredCopyToClipboard (text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          console.error('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+        showFlashMsg("Copy Success")
+      }
     
 
     useEffect((e)=>{
@@ -238,43 +262,43 @@ function DetailTransaction(props) {
 
                                     <div className="row">
                                         <div className="col-12 table-responsive">
-                                        <table className="table table-striped">
-                                            <thead>
-                                            <tr>
-                                            <th>Qty</th>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Description</th>
-                                            <th>Subtotal</th>
-                                            </tr>
-                                            </thead>
-                                            
-                                                <tbody>
-                                                {
-                                                transactionDetails.map((map) => (
-                                                    <tr key={map.id}>
-                                                        <td>{map.qty}</td>
-                                                        <td>{map.product.product_name}</td>
-                                                        <td>Rp. {decimalFormatter(map.product.price)}</td>
-                                                        <td>{map.description}</td>
-                                                        <td>Rp. {decimalFormatter(map.qty*map.product.price)}</td>
-                                                    </tr>
-                                                ))}
-                                                </tbody>
-                                            <tfoot>
+                                            <table className="table table-striped">
+                                                <thead>
                                                 <tr>
-                                                    <td colSpan={4} className="text-right">Total</td>
-                                                    <td>Rp. {decimalFormatter(parseInt(transaction.total_price))}</td>
+                                                <th>Qty</th>
+                                                <th>Product</th>
+                                                <th>Price</th>
+                                                <th>Description</th>
+                                                <th>Subtotal</th>
                                                 </tr>
-                                            </tfoot>
-                                        </table>
+                                                </thead>
+                                                
+                                                    <tbody>
+                                                    {
+                                                    transactionDetails.map((map) => (
+                                                        <tr key={map.id}>
+                                                            <td>{map.qty}</td>
+                                                            <td>{map.product.product_name}</td>
+                                                            <td>Rp. {decimalFormatter(map.product.price)}</td>
+                                                            <td>{map.description}</td>
+                                                            <td>Rp. {decimalFormatter(map.qty*map.product.price)}</td>
+                                                        </tr>
+                                                    ))}
+                                                    </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colSpan={4} className="text-right">Total</td>
+                                                        <td>Rp. {decimalFormatter(parseInt(transaction.total_price))}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
-                                    
 
                                     <div className="row no-print">
                                         <div className="col-12">
-                                        <p href="invoice-print.html" rel="noopener" target="_blank" className="btn btn-default"><i className="fas fa-print"></i> Print</p>
+                                        <p href="invoice-print.html" rel="noopener" target="_blank" className="btn btn-default mr-1"><i className="fas fa-print"></i> Print</p>
+                                        <p href="invoice-print.html" rel="noopener" target="_blank" className="btn btn-success" onClick={() => unsecuredCopyToClipboard(clipboard)}><i className="fas fa-copy"></i> Copy</p>
                                         
                                         <button type="button" className="btn btn-primary float-right mr-2" onClick={downloadAllFile}>
                                             <i className="fas fa-download"></i> DOWNLOAD FILE
