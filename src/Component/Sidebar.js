@@ -83,6 +83,12 @@ function AppMenu(props) {
                     </NavLink>
                   </li>
                   <li className="nav-item">
+                    <NavLink to="/bank" className="nav-link">
+                      <i className="fas fa-university nav-icon"></i>
+                      <p>Bank Account</p>
+                    </NavLink>
+                  </li>
+                  <li className="nav-item">
                     <NavLink to="/setting" className="nav-link">
                       <i className="fas fa-cog nav-icon"></i>
                       <p>Setting</p>

@@ -133,7 +133,6 @@ function Transaction(props) {
         obj = data.data
         setTransactions(obj)
         setLoading(false)
-        
     }catch(e){
         console.error(e.message);
         setLoading(false)
@@ -213,7 +212,7 @@ useEffect(() => {
                                   <td>{index+1}</td>
                                   <td>{transaction.invoice_id}</td>
                                   <td>Rp{decimalFormatter(transaction.total_price)}</td>
-                                  <td>{transaction.bank}</td>
+                                  <td>{transaction.bank.name}</td>
                                   <td>{getStsTransaction(transaction.status)}</td>
                                   <td>{transaction.description}</td>
                                   <td>
