@@ -22,6 +22,7 @@ function DetailTransaction(props) {
     const [comments,setComments] = useState([])
     const [productFiles,setProductFiles] = useState([])
     const [transaction,setTransaction] = useState({})
+    const [bank,setBank] = useState({})
     const [transactionDetails,setTransactionDetails] = useState([])
     const [loading,setLoading] = useState(false)
     const [loadingComment,setLoadingComment] = useState(false)
@@ -40,7 +41,7 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
         setFileName(`${e.target.files.length} Files`)
     }
 
-    const getTransactions = async() =>{
+    const getTransaction = async() =>{
         let obj = []
         setLoading(true)
         try{
@@ -58,6 +59,7 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
             setProductFiles(obj.product_files)
             setComments(obj.comments)
             setLoading(false)
+            setBank(obj.bank)
             
         }catch(e){
             console.log(e.message);
@@ -212,7 +214,7 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
     
 
     useEffect((e)=>{
-        getTransactions()
+        getTransaction()
     },[])
 
     return (
@@ -255,7 +257,7 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
                                         <div className="col-sm-4 invoice-col">
                                         <b>Invoice #{invoice_id}</b><br/>
                                         <b>Payment Due:</b> - <br/>
-                                        <b>Bank Transfer:</b> BCA : 0380143631 <br/>
+                                        <b>Bank Transfer:</b> {bank.name} : {bank.accnbr} <br/>
                                         <b>Transaction Date:</b> {transaction.created_at} <br/>
                                         </div>
                                     </div>

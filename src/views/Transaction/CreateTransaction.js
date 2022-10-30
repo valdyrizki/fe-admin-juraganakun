@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import ContentHeader from '../../Component/ContentHeader';
@@ -19,6 +19,7 @@ function CreateTransaction(props) {
         qty : 1,
         price:0
     })
+    const [banks,setBanks] = useState([])
     const [stock,setStock] = useState(0)
     const [totalPrice,setTotalPrice] = useState(0)
     const [carts,setCarts] = useState([])
@@ -26,7 +27,7 @@ function CreateTransaction(props) {
         client_name : "",
         phone_number : "",
         email : "viaadm@juraganakun.com",
-        bank : "Admin",
+        bank : 1,
         coupon : "",
         description : "",
         products : []
@@ -88,6 +89,21 @@ function CreateTransaction(props) {
         });
     }
 
+    const getBanks = async () => {
+        setLoading(true)
+        try {
+            let {data} = await axios.get(`${ip}/bank`,{
+                headers: {
+                    'Authorization': 'Bearer '+token
+                }
+            });
+            setBanks(data.data);
+        } catch (e) {
+            console.log(e.message);
+        }
+        setLoading(false)
+    }
+
     const getProductsByCategory = async (category_id) => {
         setLoading(true)
         try {
@@ -115,6 +131,10 @@ function CreateTransaction(props) {
             setTotalPrice(totalPrice+order.subTotal)
         }
     }
+
+    useEffect( () =>{
+        getBanks(); 
+    },[]) 
 
     return (
         <div className="content-wrapper">
@@ -183,8 +203,9 @@ function CreateTransaction(props) {
                                     <div className="form-group col-2">
                                         <small>Bank Via</small>
                                         <select className="form-control form-control-sm " id="bank" name="bank" placeholder="Bank Via" value={inputs.bank} onChange={(e) => inputChange(e)}>
-                                            <option value="ADMIN">Admin</option>
-                                            <option value="QRISC">QRIS</option>
+                                            {banks.map((bank) => (
+                                                <option key={bank.id} value={bank.id}>{`${bank.name}`}</option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="form-group col-2">

@@ -25,6 +25,9 @@ import JournalCategory from '../views/JournalCategory';
 import CreateJournalCategory from '../views/JournalCategory/CreateJournalCategory';
 import EditJournalCategory from '../views/JournalCategory/EditJournalCategory';
 import Report from '../views/Report';
+import Bank from '../views/Bank';
+import CreateBank from '../views/Bank/CreateBank';
+import EditBank from '../views/Bank/EditBank';
 
 
 function Router(props) {
@@ -134,6 +137,28 @@ function Router(props) {
                     </Authenticated>
                 </Route>
 
+                {/* bank Module */}
+                <Route exact path='/bank'>
+                    <Authenticated>
+                        <Template>
+                            <Bank />
+                        </Template>
+                    </Authenticated>
+                </Route>
+                <Route exact path='/bank/create'>
+                    <Authenticated>
+                        <Template>
+                            <CreateBank />
+                        </Template>
+                    </Authenticated>
+                </Route>
+                <Route exact path='/bank/edit/:id'>
+                    <Authenticated>
+                        <Template>
+                            <EditBank />
+                        </Template>
+                    </Authenticated>
+                </Route>
                 
                 <Route exact path='/file'>
                     <Authenticated>
