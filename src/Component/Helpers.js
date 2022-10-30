@@ -16,6 +16,29 @@ export const decimalFormatter = (angka) => {
     return rupiah;  
 }
 
+export const decimalFormatter2 = (angka) => {
+    let angkaToString = angka.toString();
+
+    if(angkaToString.includes(".")){
+        angkaToString = angkaToString.substr(0,angkaToString.length - 2)
+    }
+
+    var number_string = angkaToString.replace(/[^,\d]/g, ''),
+    split   		= number_string.split(','),
+    sisa     		= split[0].length % 3,
+    rupiah     		= split[0].substr(0, sisa),
+    ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+    // tambahkan titik jika yang di input sudah menjadi angka ribuan
+    if(ribuan){
+        let separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+
+    rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+    return rupiah;  
+}
+
 export function getStsTransaction(sts) {  
     switch (sts) {
         case 0:

@@ -1,31 +1,26 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import ContentHeader from '../../Component/ContentHeader';
-import { showConfirm, showError, showSuccess } from '../../Component/Template/Msg';
 import { useRecoilValue } from "recoil";
 import { tokenAtom } from '../../store/user';
 import { serverIp } from '../../store/setting';
-import { getStsDbCr } from '../../Component/Helpers';
+import {decimalFormatter2 } from '../../Component/Helpers';
 
 function Report(props) {
-
-  const [journalCategories,setJournalCategory] = useState([])
-  const [filteredCategory,setFilteredCategory] = useState(journalCategories)
+  const [banks,setBanks] = useState([])
   const [loading,setLoading] = useState(false)
-  const [searchBox,setSearchBox] = useState('')
   const token = useRecoilValue(tokenAtom)
   const ip = useRecoilValue(serverIp)
-      
-  const getJournalCategory = async () => {
+
+  const getBanks = async ()=>{
     setLoading(true)
     try{
-        let {data} = await axios.get(`${ip}/journal-category`,{
+        let {data} = await axios.get(`${ip}/bank`,{
             headers: {
                 'Authorization': 'Bearer '+token
             }
         })
-        setJournalCategory(data.data)
+        setBanks(data.data)
         setLoading(false)
     }catch(e){
         console.log(e.message);
@@ -33,40 +28,11 @@ function Report(props) {
     }
   }
   
-  const onDeleteHandler = (category_id) =>{
-    showConfirm(async function (confirmed) {
-        if(confirmed){
-            try{
-                setLoading(true)
-                let {data} = await axios.delete(`${ip}/journal-category/${category_id}`,{
-                    headers: {
-                        'Authorization': 'Bearer '+token
-                    }
-                })
-                if(data.isSuccess){
-                    showSuccess(data.msg)
-                    getJournalCategory();
-                }else{
-                    showError(data.msg)
-                }
-                setLoading(false)
-            }catch(e){
-                console.log(e.message);
-                setLoading(false)
-            }
-        }
-    });
-  }
+ 
 
     useEffect( () =>{
-        getJournalCategory(); 
+        getBanks(); 
     },[]) 
-
-    useEffect(() => {
-        setFilteredCategory(
-            journalCategories.filter((category) => category.name.toUpperCase().indexOf(searchBox.toUpperCase()) !== -1)
-        );
-    }, [journalCategories,searchBox]);
 
     return (
         <div className="content-wrapper">
@@ -82,9 +48,9 @@ function Report(props) {
                     <div className="card">                        
                         <div className="card-body">
                             {
-                                // loading ? <div> Loading .... </div> :
+                                loading ? <div> Loading .... </div> :
                                 <div className="row">
-                                    <div className="col-lg-3 col-12">
+                                    {/* <div className="col-lg-3 col-12">
                                         <div className="small-box bg-primary">
                                             <a href="/#" className="small-box-footer">BCA</a>
                                             <div className="inner">
@@ -155,7 +121,17 @@ function Report(props) {
                                                 <h4><sup style={{fontSize: '14px'}}>Rp</sup>100.000.000</h4>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
+                                    {banks.map((bank) =>(
+                                        <div className="col-lg-3 col-12">
+                                            <div className="small-box bg-success">
+                                                <a href="/#" className="small-box-footer">{bank.name}</a>
+                                                <div className="inner">
+                                                    <h4><sup style={{fontSize: '14px'}}>Rp</sup>{decimalFormatter2(bank.balance)}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             }
                             </div>
@@ -167,83 +143,83 @@ function Report(props) {
                     <h4 className="card-title">Report Transaction</h4>
                     </div>
                     
-                    <div className="card">
+                    {/* <div className="card">
                         <div className="card-header">
-                            <ul class="pagination pagination-month justify-content-center">
-                                <li class="page-item"><a class="page-link" href="#">«</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Jan</p>
-                                        <p class="page-year">2021</p>
+                            <ul className="pagination pagination-month justify-content-center">
+                                <li className="page-item"><a className="page-link" href="#">«</a></li>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Jan</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Feb</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item active">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Feb</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Mar</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Mar</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Apr</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Apr</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">May</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">May</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Jun</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Jun</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Jul</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Jul</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Aug</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Aug</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Sep</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Sep</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Oct</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Oct</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Nov</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Nov</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">
-                                        <p class="page-month">Dec</p>
-                                        <p class="page-year">2021</p>
+                                <li className="page-item">
+                                    <a className="page-link" href="#">
+                                        <p className="page-month">Dec</p>
+                                        <p className="page-year">2021</p>
                                     </a>
                                 </li>
-                                <li class="page-item"><a class="page-link" href="#">»</a></li>
+                                <li className="page-item"><a className="page-link" href="#">»</a></li>
                             </ul>
                         </div>
                         
@@ -326,7 +302,7 @@ function Report(props) {
                                 </div>
                             }
                             </div>
-                    </div>
+                    </div> */}
                 </div>
 
             </section>
