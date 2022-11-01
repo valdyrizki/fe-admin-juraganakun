@@ -28,6 +28,7 @@ import Report from '../views/Report';
 import Bank from '../views/Bank';
 import CreateBank from '../views/Bank/CreateBank';
 import EditBank from '../views/Bank/EditBank';
+import JournalTransaction from '../views/JournalTransaction';
 
 
 function Router(props) {
@@ -170,7 +171,7 @@ function Router(props) {
 
                 
 
-                {/* Category Module */}
+                {/* Journal Category Module */}
                 <Route exact path='/journal-category'>
                     <Authenticated>
                         <Template>
@@ -189,6 +190,14 @@ function Router(props) {
                     <Authenticated>
                         <Template>
                             <EditJournalCategory />
+                        </Template>
+                    </Authenticated>
+                </Route>
+
+                <Route exact path='/journal-transaction'>
+                    <Authenticated>
+                        <Template>
+                            <JournalTransaction />
                         </Template>
                     </Authenticated>
                 </Route>
