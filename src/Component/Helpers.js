@@ -84,12 +84,11 @@ export function getStsFileProduct(sts) {
 export function getStsDbCr(sts) {  
     switch (sts) {
         case 0:
-            return "DEBET"
+            return "DEBIT"
         case 1:
             return "CREDIT"
-    
         default:
-            return "DEBET"
+            return "DEBIT"
     }
 }
 

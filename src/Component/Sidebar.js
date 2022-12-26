@@ -127,6 +127,12 @@ function AppMenu(props) {
                           <p>Journal Transaction</p>
                         </a>
                       </li>
+                      <li className="nav-item">
+                        <a href="/journal-report" className="nav-link">
+                          <i className="far fa-circle nav-icon"></i>
+                          <p>Journal Report</p>
+                        </a>
+                      </li>
                     </ul>
                   </li>
 

@@ -75,7 +75,7 @@ function Report(props) {
 
     return (
         <div className="content-wrapper">
-            <ContentHeader title="Reports" parentTitle="Journal Category"/> 
+            <ContentHeader title="Reports" parentTitle="Report"/> 
 
             <section className="content">
 

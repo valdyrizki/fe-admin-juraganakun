@@ -139,7 +139,7 @@ export default function JournalTransaction(props) {
 
     return (
         <div className="content-wrapper">
-            <ContentHeader title="Upload Stock" parentTitle="Stock"/> 
+            <ContentHeader title="Journal Transaction" parentTitle="Journal"/> 
             <section className="content">
                 <div className="card card-primary">
                     <div className="card-header">

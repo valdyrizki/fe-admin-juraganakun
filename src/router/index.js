@@ -29,6 +29,7 @@ import Bank from '../views/Bank';
 import CreateBank from '../views/Bank/CreateBank';
 import EditBank from '../views/Bank/EditBank';
 import JournalTransaction from '../views/JournalTransaction';
+import JournalReport from '../views/JournalReport';
 
 
 function Router(props) {
@@ -198,6 +199,14 @@ function Router(props) {
                     <Authenticated>
                         <Template>
                             <JournalTransaction />
+                        </Template>
+                    </Authenticated>
+                </Route>
+
+                <Route exact path='/journal-report'>
+                    <Authenticated>
+                        <Template>
+                            <JournalReport />
                         </Template>
                     </Authenticated>
                 </Route>
