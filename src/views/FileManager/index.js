@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 import { tokenAtom } from '../../store/user';
 import { serverIp } from '../../store/setting';
 import { getStsFileProduct } from '../../Component/Helpers';
+import { NavLink } from 'react-router-dom';
 
 function FileManager(props) {
   const [files,setFiles] = useState([])
@@ -81,7 +82,7 @@ useEffect(() => {
                               {filteredFiles.map((file,index) => (
                                 <tr key={file.id}>
                                   <td>{index+1}</td>
-                                  <td>{file.invoice_id}</td>
+                                  <td><NavLink to={`/transaction/detail/${file.invoice_id}`}>{file.invoice_id}</NavLink></td>
                                   <td>{file.product_id}</td>
                                   <td>{file.filename}</td>
                                   <td>{file.path}</td>
