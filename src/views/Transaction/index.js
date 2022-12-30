@@ -13,6 +13,7 @@ function Transaction(props) {
   const token = useRecoilValue(tokenAtom)
   const ip = useRecoilValue(serverIp)
   const [filterStatus,setFilterStatus] = useState('99')
+  const [filterRecord,setFilterRecord] = useState('10')
   const [filteredTransactions,setFilteredTransactions] = useState(transactions)
   const [searchBox,setSearchBox] = useState('')
   const [loading,setLoading] = useState(false)
@@ -33,7 +34,7 @@ function Transaction(props) {
                 }else{
                     showError(data.msg)
                 }
-                getTransactions()
+                getTransactionsByRecord()
                 setLoading(false)
             }catch(e){
                 console.log(e.message);
@@ -59,7 +60,7 @@ function Transaction(props) {
                 }else{
                     showError(data.msg)
                 }
-                getTransactions()
+                getTransactionsByRecord()
                 setLoading(false)
             }catch(e){
                 console.error(e.message);
@@ -85,7 +86,7 @@ function Transaction(props) {
                 }else{
                     showError(data.msg)
                 }
-                getTransactions()
+                getTransactionsByRecord()
                 setLoading(false)
             }catch(e){
                 console.error(e.message);
@@ -111,7 +112,7 @@ function Transaction(props) {
                 }else{
                     showError(data.msg)
                 }
-                getTransactions()
+                getTransactionsByRecord()
                 setLoading(false)
             }catch(e){
                 console.error(e.message);
@@ -139,12 +140,39 @@ function Transaction(props) {
     } 
   }
 
+  const getTransactionsByRecord = async() =>{
+    let obj = []
+    setLoading(true)
+    try{
+        let {data} = await axios.get(`${ip}/transaction/getbyrecord/${filterRecord}`,{
+            headers: {
+                'Authorization': 'Bearer '+token
+            }
+        })
+        obj = data.data
+        setTransactions(obj)
+        setLoading(false)
+    }catch(e){
+        console.error(e.message);
+        setLoading(false)
+    } 
+  }
+
   const onChangeFilter = (e)=>{
     setFilterStatus(e.target.value)
   }
 
+  const filterRecordTrigger = (i)=>{
+    setFilterRecord(i)
+    if(i === '999'){
+        getTransactions()
+    }else{
+        getTransactionsByRecord()
+    }
+  }
+
   useEffect(() => {
-    getTransactions()
+    getTransactionsByRecord()
 }, []);
 
 useEffect(() => {
@@ -173,7 +201,16 @@ useEffect(() => {
                         <i className="fas fa-plus"></i> Add Transaction
                       </NavLink>
                       <div className='row float-right'>
-                        <div className='col-6 form-group justify-content-end'>
+                        <div className='col-2 form-group justify-content-end'>
+                            <select className='form-control' id="filterRecord" name="filterRecord" onChange={(e) => filterRecordTrigger(e.target.value)} value={filterRecord}>
+                                <option value='10'>10</option>
+                                <option value='25'>25</option>
+                                <option value='50'>50</option>
+                                <option value='100'>100</option>
+                                <option value='999'>GET ALL</option>
+                            </select>
+                        </div>
+                        <div className='col-4 form-group justify-content-end'>
                             <select className='form-control' id="filter" name="filter" onChange={(e) => onChangeFilter(e)} value={filterStatus}>
                                 <option value='99'>SHOW ALL</option>
                                 <option value='0'>PENDING</option>
@@ -197,24 +234,24 @@ useEffect(() => {
                           <table id="tableTransactions" className="table table-striped table-sm">
                               <thead>
                                 <tr>
-                                  <th>No</th>
                                   <th>Invoice</th>
+                                  <th>Client</th>
                                   <th>Total Price</th>
                                   <th>Bank</th>
                                   <th>Status</th>
-                                  <th>Description</th>
+                                  {/* <th>Description</th> */}
                                   <th>Action</th>
                                   </tr>
                                 </thead>
                               <tbody>
                               {filteredTransactions.map((transaction,index) => (
                                 <tr key={transaction.invoice_id}>
-                                  <td>{index+1}</td>
                                   <td>{transaction.invoice_id}</td>
+                                  <td>{transaction.client_name}</td>
                                   <td>Rp{decimalFormatter(transaction.total_price)}</td>
                                   <td>{transaction.bank.name}</td>
                                   <td>{getStsTransaction(transaction.status)}</td>
-                                  <td>{transaction.description}</td>
+                                  {/* <td>{transaction.description}</td> */}
                                   <td>
                                     <NavLink to={`/transaction/detail/${transaction.invoice_id}`} className="btn bg-info btn-xs mr-2">
                                         <i className="fas fa-info-circle"></i> Detail
