@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import ContentHeader from '../../Component/ContentHeader';
-import { decimalFormatter } from '../../Component/Helpers';
+import { decimalFormatter, downloadFile } from '../../Component/Helpers';
 import { showConfirm, showError, showSuccess } from '../../Component/Template/Msg';
 import { getCategory } from '../../store/category';
 import { serverIp } from '../../store/setting';
@@ -23,6 +23,7 @@ function CreateTransaction(props) {
     const [stock,setStock] = useState(0)
     const [totalPrice,setTotalPrice] = useState(0)
     const [carts,setCarts] = useState([])
+    const [productFiles,setProductFiles] = useState([])
     const [inputs,setInputs] = useState({
         client_name : "",
         phone_number : "",
@@ -123,12 +124,46 @@ function CreateTransaction(props) {
         setLoading(false)
     }
 
-    const addProduct = () => {
+    const addProduct = async() => {
         if(parseInt(order.qty) > parseInt(stock)){
             showError("Pesanan melampaui stock, stock saat ini : "+stock)
         }else{
             setCarts((current)=>[...current,order])
             setTotalPrice(totalPrice+order.subTotal)
+            
+            //get preview file
+            try{
+                let {data} = await axios.get(`${ip}/file/getpreviewfile`,{
+                    headers: {
+                        'Authorization': 'Bearer '+token
+                    },
+                    params : {
+                        product_id : order.product_id,
+                        qty : parseInt(order.qty)
+                    }
+                });
+                setProductFiles(productFiles.concat(data.data))
+
+            }catch (e) {
+                console.log(e.message);
+            }
+        }
+    }
+
+    const downloadFileProduct = async(e,product_file) =>{
+        e.preventDefault();
+        try{
+            let response = await axios.post(`${ip}/product/downloadbycode`,{code:product_file.code},
+            {
+                responseType: 'arraybuffer',
+                headers: {
+                    "Authorization": "Bearer "+token,
+                    'Content-Type': 'application/json',
+                },
+            });
+            downloadFile(response,product_file.filename)
+        }catch(e){
+            console.log(e.getMessage);
         }
     }
 
@@ -251,6 +286,32 @@ function CreateTransaction(props) {
                                                     <td>Rp {decimalFormatter(totalPrice)}</td>
                                                 </tr>
                                             :<></>}
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                </div>
+
+                                <div className="row">
+                                    <div className="col-12 table-responsive">
+                                    <table className="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Filename</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {productFiles.length<1 ? 
+                                                <tr>
+                                                    <td colSpan={2} className="text-center">No data</td>
+                                                </tr> 
+                                            : <></>}
+                                            {productFiles.map((product_file,index)=>(
+                                                <tr key={index}>
+                                                    <td>{product_file.product_id}</td>
+                                                    <td><button className="btn btn-primary btn-xs" onClick={(e) => downloadFileProduct(e,product_file)}><i className="far fa-fw fa-file-archive"></i> {product_file.filename}</button></td> 
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                     </div>
