@@ -101,6 +101,14 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
 
-
+    <script type="text/javascript">
+      (function(d, id) {
+        let js, fjs = d.getElementsByTagName('script')[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement('script'); js.id = id; js.type = 'module';
+        js.src = "https://tripay.co.id/salesproof/sdk?merchant_code=T22119";
+        fjs.parentNode.insertBefore(js, fjs);
+      })(document, 'tripay-websocket');
+      </script>
   </body>
 </html>
