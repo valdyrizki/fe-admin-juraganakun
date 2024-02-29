@@ -1,148 +1,192 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useRecoilValue } from "recoil";
-import {userAtom} from "../store/user"
-
+import React from "react";
+import { NavLink } from "react-router-dom";
+import { getUserLogin } from "./Helpers";
 
 function AppMenu(props) {
-    const user = useRecoilValue(userAtom)
+  let userLogin = getUserLogin();
+  return (
+    <div>
+      <aside className="main-sidebar sidebar-dark-primary elevation-4">
+        {/* <!-- Brand Logo --> */}
+        <NavLink to="/home" className="brand-link text-center">
+          <i className="fab fa-vimeo-v mr-2" />
+          <span className="brand-text font-weight-light">CV. VALDIGI</span>
+        </NavLink>
 
-    return (
-        <div>
-            <aside className="main-sidebar sidebar-dark-primary elevation-4">
-            {/* <!-- Brand Logo --> */}
-            <NavLink to="/home" className="brand-link text-center">
-              <i className="fab fa-vimeo-v mr-2"/>
-              <span className="brand-text font-weight-light">CV. VALDIGI</span>
-            </NavLink>
+        {/* <!-- Sidebar --> */}
+        <div className="sidebar">
+          {/* <!-- Sidebar user panel (optional) --> */}
+          <div className="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div className="image">
+              <img
+                src="dist/img/user2-160x160.jpg"
+                className="img-circle elevation-2"
+                alt="User"
+              />
+            </div>
+            <div className="info">
+              <a href="/#" className="d-block">
+                {`${userLogin.firstname} ${userLogin.lastname}`}
+              </a>
+            </div>
+          </div>
 
-            {/* <!-- Sidebar --> */}
-            <div className="sidebar"> 
-              {/* <!-- Sidebar user panel (optional) --> */}
-              <div className="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div className="image">
-                  <img src="dist/img/user2-160x160.jpg" className="img-circle elevation-2" alt="User" />
-                </div>
-                <div className="info">
-                  <a href="/#" className="d-block">{user.name}</a>
-                </div>
+          {/* <!-- SidebarSearch Form --> */}
+          <div className="form-inline">
+            <div className="input-group" data-widget="sidebar-search">
+              <input
+                className="form-control form-control-sidebar"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+              />
+              <div className="input-group-append">
+                <button className="btn btn-sidebar">
+                  <i className="fas fa-search fa-fw"></i>
+                </button>
               </div>
+            </div>
+          </div>
 
-              {/* <!-- SidebarSearch Form --> */}
-              <div className="form-inline">
-                <div className="input-group" data-widget="sidebar-search">
-                  <input className="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search" />
-                  <div className="input-group-append">
-                    <button className="btn btn-sidebar">
-                      <i className="fas fa-search fa-fw"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {/* <!-- Sidebar Menu --> */}
+          <nav className="mt-2">
+            <ul
+              className="nav nav-pills nav-sidebar flex-column"
+              data-widget="treeview"
+              role="menu"
+              data-accordion="false"
+            >
+              {/* <!-- Add icons to the links using the .nav-icon class */}
+              {/* with font-awesome or any other icon font library --> */}
 
-              {/* <!-- Sidebar Menu --> */}
-              <nav className="mt-2">
-                <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                  {/* <!-- Add icons to the links using the .nav-icon class */}
-                      {/* with font-awesome or any other icon font library --> */}
-                  
+              <li className="nav-item">
+                <NavLink to="/home" className="nav-link">
+                  <i className="nav-icon fas fa-tachometer-alt"></i>
+                  <p>Dashboard</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/category" className="nav-link">
+                  <i className="nav-icon fas fa-tags"></i>
+                  <p>Category</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/product" className="nav-link">
+                  <i className="fas fa-box nav-icon"></i>
+                  <p>Product</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/stock" className="nav-link">
+                  <i className="fas fa-boxes nav-icon"></i>
+                  <p>Stock</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/transaction" className="nav-link">
+                  <i className="fas fa-money-check nav-icon"></i>
+                  <p>Transaction</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/file" className="nav-link">
+                  <i className="fas fa-folder nav-icon"></i>
+                  <p>File Manager</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/bank" className="nav-link">
+                  <i className="fas fa-university nav-icon"></i>
+                  <p>Bank Account</p>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/user" className="nav-link">
+                  <i className="fas fa-users nav-icon"></i>
+                  <p>List Users</p>
+                </NavLink>
+              </li>
+
+              <li className="nav-item">
+                <a href="/#" className="nav-link">
+                  <i className="fas fa-brain nav-icon"></i>
+                  <p>
+                    Replicate AI
+                    <i className="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul className="nav nav-treeview">
                   <li className="nav-item">
-                    <NavLink to="/home" className="nav-link">
-                      <i className="nav-icon fas fa-tachometer-alt"></i>
-                      <p>Dashboard</p>
+                    <NavLink to={"/ai/generate-image"} className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Generate Image</p>
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink to="/category" className="nav-link">
-                      <i className="nav-icon fas fa-tags"></i>
-                      <p>Category</p>
+                    <NavLink to={"/ai/enhance-image"} className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Enhance Image</p>
                     </NavLink>
                   </li>
+                </ul>
+              </li>
+
+              {/* <li className="nav-item">
+                <NavLink to="/ai" className="nav-link">
+                  <i className="fas fa-brain nav-icon"></i>
+                  <p>AI</p>
+                </NavLink>
+              </li> */}
+              {/* <li className="nav-item">
+                <NavLink to="/setting" className="nav-link">
+                  <i className="fas fa-cog nav-icon"></i>
+                  <p>Setting</p>
+                </NavLink>
+              </li> */}
+              {/* <li className="nav-item">
+                <NavLink to="/report" className="nav-link">
+                  <i className="fas fa-chart-line nav-icon"></i>
+                  <p>Report</p>
+                </NavLink>
+              </li> */}
+              {/* <li className="nav-item">
+                <a href="/#" className="nav-link">
+                  <i className="nav-icon fas fa-book"></i>
+                  <p>
+                    Journal
+                    <i className="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul className="nav nav-treeview">
                   <li className="nav-item">
-                    <NavLink to="/product" className="nav-link">
-                      <i className="fas fa-box nav-icon"></i>
-                      <p>Product</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/stock" className="nav-link">
-                      <i className="fas fa-boxes nav-icon"></i>
-                      <p>Stock</p>
-                    </NavLink>  
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/transaction" className="nav-link">
-                      <i className="fas fa-money-check nav-icon"></i>
-                      <p>Transaction</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/file" className="nav-link">
-                      <i className="fas fa-folder nav-icon"></i>
-                      <p>File Manager</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/bank" className="nav-link">
-                      <i className="fas fa-university nav-icon"></i>
-                      <p>Bank Account</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/setting" className="nav-link">
-                      <i className="fas fa-cog nav-icon"></i>
-                      <p>Setting</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/report" className="nav-link">
-                      <i className="fas fa-chart-line nav-icon"></i>
-                      <p>Report</p>
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <a href="/#" className="nav-link">
-                      <i className="nav-icon fas fa-book"></i>
-                      <p>
-                        Journal
-                        <i className="fas fa-angle-left right"></i>
-                      </p>
+                    <a href="/journal-category" className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Journal Category</p>
                     </a>
-                    <ul className="nav nav-treeview">
-                      <li className="nav-item">
-                        <a href="/journal-category" className="nav-link">
-                          <i className="far fa-circle nav-icon"></i>
-                          <p>Journal Category</p>
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/journal-account" className="nav-link">
-                          <i className="far fa-circle nav-icon"></i>
-                          <p>Journal Account</p>
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/journal-transaction" className="nav-link">
-                          <i className="far fa-circle nav-icon"></i>
-                          <p>Journal Transaction</p>
-                        </a>
-                      </li>
-                      <li className="nav-item">
-                        <a href="/journal-report" className="nav-link">
-                          <i className="far fa-circle nav-icon"></i>
-                          <p>Journal Report</p>
-                        </a>
-                      </li>
-                    </ul>
                   </li>
+                  <li className="nav-item">
+                    <a href="/journal-account" className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Journal Account</p>
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a href="/journal-transaction" className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Journal Transaction</p>
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a href="/journal-report" className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Journal Report</p>
+                    </a>
+                  </li>
+                </ul>
+              </li> */}
 
-                
-
-
-
-                    
-
-                  {/* <li className="nav-item">
+              {/* <li className="nav-item">
                     <a href="pages/widgets.html" className="nav-link">
                       <i className="nav-icon fas fa-th"></i>
                       <p>
@@ -744,14 +788,14 @@ function AppMenu(props) {
                       <p>Informational</p>
                     </a>
                   </li> */}
-                </ul>
-              </nav>
-              {/* <!-- /.sidebar-menu --> */}
-            </div>
-            {/* <!-- /.sidebar --> */}
-          </aside>
+            </ul>
+          </nav>
+          {/* <!-- /.sidebar-menu --> */}
         </div>
-    );
+        {/* <!-- /.sidebar --> */}
+      </aside>
+    </div>
+  );
 }
 
 export default AppMenu;
