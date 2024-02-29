@@ -1,23 +1,19 @@
-import { authAtom } from '../../store/user';
-import { useRecoilValue } from "recoil";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
+import { getToken } from "../Helpers";
 
 function Authenticated(props) {
-    const auth = useRecoilValue(authAtom)
-    const history = useHistory()
+  const history = useHistory();
 
-    try{
-        if(auth === null){
-            history.push("/login") 
-            return
-        }else{
-            return props.children
-        }
-    }catch(e){
-        history.push("/login") 
+  try {
+    if (!getToken()) {
+      history.push("/login");
+      return;
+    } else {
+      return props.children;
     }
-    
-    
+  } catch (e) {
+    history.push("/login");
+  }
 }
 
-export default Authenticated;   
+export default Authenticated;

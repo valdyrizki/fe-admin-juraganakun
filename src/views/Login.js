@@ -1,66 +1,44 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
 import { showError, showSuccess } from "../Component/Template/Msg";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { authAtom, tokenAtom, userAtom } from "../store/user";
-import { serverIp } from "../store/setting";
+import { useDispatch, useSelector } from "react-redux";
+import { postLogin } from "../actions/authAction";
+import { getToken } from "../Component/Helpers";
+import Spinner from "./loading";
 
 function Login(props) {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const history = useHistory();
 
-  const [auth, setAuth] = useRecoilState(authAtom);
-  const setUser = useSetRecoilState(userAtom);
-  const setToken = useSetRecoilState(tokenAtom);
-  const ip = useRecoilValue(serverIp);
-
+  //afterGenerate
   useEffect(() => {
-    console.log(auth);
-    if (auth != null) {
+    if (getToken()) {
       history.push("/home");
     }
   }, []);
 
-  const loginHandler = async (e) => {
-    e.preventDefault();
+  const { getAuthResult, getAuthLoading, getAuthError } = useSelector(
+    (state) => state.AuthReducer
+  );
 
-    try {
-      let response = await axios.post(`${ip}/auth/loginadmin`, {
+  //login handler
+  const loginHandler = (e) => {
+    e.preventDefault();
+    dispatch(
+      postLogin({
         email: email,
         password: password,
-      });
-      let data = response.data;
-      console.log(response);
-      if (data.isSuccess) {
-        showSuccess("Login Successfully");
-        //set localstorage
-        localStorage.setItem("user", JSON.stringify(data.data));
-        localStorage.setItem(
-          "auth",
-          JSON.stringify({
-            isAuth: true,
-            authDate: new Date(),
-          })
-        );
-        localStorage.setItem("token", JSON.stringify(data.token.trim()));
-
-        //set atom
-        setAuth({
-          isAuth: true,
-          authDate: new Date(),
-        });
-        setUser(data.data);
-        setToken(data.token.trim());
+      })
+    )
+      .then(({ msg }) => {
+        showSuccess(msg);
         history.push("/home");
-      } else {
+      })
+      .catch(({ data }) => {
         showError(data.msg);
-      }
-    } catch (e) {
-      showError(e.message);
-      console.log(e.message);
-    }
+      });
   };
 
   document.body.style = "background: #E9ECEF;";
@@ -106,19 +84,27 @@ function Login(props) {
                     </div>
                   </div>
                 </div>
-                <div className="row">
-                  <div className="col-8">
-                    <div className="icheck-primary">
-                      <input type="checkbox" id="remember" />
-                      <label>Remember Me</label>
+
+                {getAuthLoading ? (
+                  <Spinner />
+                ) : (
+                  <div className="row">
+                    <div className="col-8">
+                      <div className="icheck-primary">
+                        <input type="checkbox" id="remember" />
+                        <label>Remember Me</label>
+                      </div>
+                    </div>
+                    <div className="col-4">
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-block"
+                      >
+                        Sign In
+                      </button>
                     </div>
                   </div>
-                  <div className="col-4">
-                    <button type="submit" className="btn btn-primary btn-block">
-                      Sign In
-                    </button>
-                  </div>
-                </div>
+                )}
               </form>
 
               <div className="social-auth-links text-center mt-2 mb-3">

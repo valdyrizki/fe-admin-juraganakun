@@ -26,6 +26,11 @@ import CreateBank from "../views/Bank/CreateBank";
 import EditBank from "../views/Bank/EditBank";
 import JournalTransaction from "../views/JournalTransaction";
 import JournalReport from "../views/JournalReport";
+import User from "../views/User";
+import CreateUser from "../views/User/CreateUser";
+import EditUser from "../views/User/EditUser";
+import GenerateImage from "../views/Replicate/GenerateImage";
+import EnhanceImage from "../views/Replicate/EnhanceImage";
 
 function Router(props) {
   return (
@@ -161,6 +166,28 @@ function Router(props) {
           </Authenticated>
         </Route>
 
+        <Route exact path="/user">
+          <Authenticated>
+            <Template>
+              <User />
+            </Template>
+          </Authenticated>
+        </Route>
+        <Route exact path="/user/create">
+          <Authenticated>
+            <Template>
+              <CreateUser />
+            </Template>
+          </Authenticated>
+        </Route>
+        <Route exact path="/user/edit/:id">
+          <Authenticated>
+            <Template>
+              <EditUser />
+            </Template>
+          </Authenticated>
+        </Route>
+
         {/* Journal Category Module */}
         <Route exact path="/journal-category">
           <Authenticated>
@@ -205,6 +232,21 @@ function Router(props) {
           <Authenticated>
             <Template>
               <Report />
+            </Template>
+          </Authenticated>
+        </Route>
+
+        <Route exact path="/ai/generate-image">
+          <Authenticated>
+            <Template>
+              <GenerateImage />
+            </Template>
+          </Authenticated>
+        </Route>
+        <Route exact path="/ai/enhance-image">
+          <Authenticated>
+            <Template>
+              <EnhanceImage />
             </Template>
           </Authenticated>
         </Route>

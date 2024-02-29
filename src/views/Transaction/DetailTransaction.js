@@ -19,8 +19,16 @@ import {
 } from "../../Component/Template/Msg";
 import { serverIp } from "../../store/setting";
 import { tokenAtom } from "../../store/user";
+import {
+  getDownloadAllFile,
+  getDownloadFileByCode,
+  getTransactionByInvoice,
+} from "../../actions/transactionAction";
+import { useDispatch, useSelector } from "react-redux";
+import Spinner from "../loading";
 
-function DetailTransaction(props) {
+function DetailTransaction() {
+  const dispatch = useDispatch();
   const { invoice_id } = useParams();
   const [files, setFiles] = useState([]);
   const [fileName, setFileName] = useState("Choose File");
@@ -36,8 +44,8 @@ function DetailTransaction(props) {
   const [loadingComment, setLoadingComment] = useState(false);
   const [clipboard] = useState(
     `INVOICE : #${invoice_id}
-Terimakasih sudah order di www.juraganakun.com, ditunggu orderan selanjutnya yaaa 😁
-untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami. Untuk pembelian lebih cepat bisa dilakukan di website yaa`
+Terimakasih sudah order di JURAGANAKUN, ditunggu orderan selanjutnya yaaa 😁
+untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
   );
   const token = useRecoilValue(tokenAtom);
   const ip = useRecoilValue(serverIp);
@@ -49,29 +57,55 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
     setFileName(`${e.target.files.length} Files`);
   };
 
-  const getTransaction = async () => {
-    let obj = [];
-    setLoading(true);
-    try {
-      let { data } = await axios.get(`${ip}/transaction/getbyinvoice`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        params: {
-          invoice_id: invoice_id,
-        },
+  const { getTransactionLoading } = useSelector(
+    (state) => state.TransactionReducer
+  );
+  const { getFileLoading, getFilesLoading } = useSelector(
+    (state) => state.FileReducer
+  );
+
+  useEffect((e) => {
+    getTransaction();
+  }, []);
+
+  const getTransaction = () => {
+    dispatch(getTransactionByInvoice(invoice_id))
+      .then((data) => {
+        setTransaction(data.data);
+        const obj = data.data;
+        setTransaction(obj);
+        setTransactionDetails(obj.transaction_details);
+        setProductFiles(obj.product_files);
+        setComments(obj.comments);
+        setLoading(false);
+        setBank(obj.bank);
+      })
+      .catch((err) => {
+        console.error(err);
+        showError(err.message);
       });
-      obj = data.data;
-      setTransaction(obj);
-      setTransactionDetails(obj.transaction_details);
-      setProductFiles(obj.product_files);
-      setComments(obj.comments);
-      setLoading(false);
-      setBank(obj.bank);
-    } catch (e) {
-      console.log(e.message);
-      setLoading(false);
-    }
+  };
+
+  const downloadFileProduct = (product_file) => {
+    dispatch(getDownloadFileByCode(product_file.code))
+      .then((data) => {
+        downloadFile(data, product_file.filename);
+      })
+      .catch((err) => {
+        console.error(err);
+        showError(err.message);
+      });
+  };
+
+  const downloadAllFile = () => {
+    dispatch(getDownloadAllFile(invoice_id))
+      .then((data) => {
+        downloadFile(data, `${invoice_id}.zip`);
+      })
+      .catch((err) => {
+        console.error(err);
+        showError(err.message);
+      });
   };
 
   const getComments = async () => {
@@ -97,7 +131,6 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
     //submit comment
     e.preventDefault();
 
-    console.log(comment);
     showConfirm(async function(confirmed) {
       if (confirmed) {
         try {
@@ -125,24 +158,24 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
     });
   };
 
-  const downloadFileProduct = async (product_file) => {
-    try {
-      let response = await axios.post(
-        `${ip}/product/downloadbycode`,
-        { code: product_file.code },
-        {
-          responseType: "arraybuffer",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      downloadFile(response, product_file.filename);
-    } catch (e) {
-      console.log(e.getMessage);
-    }
-  };
+  // const downloadFileProduct = async (product_file) => {
+  //   try {
+  //     let response = await axios.post(
+  //       `${ip}/product/downloadbycode`,
+  //       { code: product_file.code },
+  //       {
+  //         responseType: "arraybuffer",
+  //         headers: {
+  //           Authorization: "Bearer " + token,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     downloadFile(response, product_file.filename);
+  //   } catch (e) {
+  //     console.log(e.getMessage);
+  //   }
+  // };
 
   const downloadFileComment = async (comment_file) => {
     setLoading(true);
@@ -194,26 +227,26 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
     });
   };
 
-  const downloadAllFile = async () => {
-    setLoading(true);
-    try {
-      let response = await axios.post(
-        `${ip}/product/downloadbyinvoice`,
-        { invoice_id: invoice_id },
-        {
-          responseType: "arraybuffer",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      downloadFile(response, `${invoice_id}.zip`);
-    } catch (e) {
-      console.log(e.getMessage);
-    }
-    setLoading(false);
-  };
+  // const downloadAllFile = async () => {
+  //   setLoading(true);
+  //   try {
+  //     let response = await axios.post(
+  //       `${ip}/product/downloadbyinvoice`,
+  //       { invoice_id: invoice_id },
+  //       {
+  //         responseType: "arraybuffer",
+  //         headers: {
+  //           Authorization: "Bearer " + token,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     downloadFile(response, `${invoice_id}.zip`);
+  //   } catch (e) {
+  //     console.log(e.getMessage);
+  //   }
+  //   setLoading(false);
+  // };
 
   function unsecuredCopyToClipboard(text) {
     const textArea = document.createElement("textarea");
@@ -229,10 +262,6 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
     showFlashMsg("Copy Success");
   }
 
-  useEffect((e) => {
-    getTransaction();
-  }, []);
-
   return (
     <div className="content-wrapper">
       <ContentHeader title="Detail Transaction" parentTitle="Transaction" />
@@ -240,8 +269,8 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
         <NavLink to="/transaction" className="btn bg-dark mb-2">
           <i className="fas fa-arrow-left"></i> Back
         </NavLink>
-        {loading ? (
-          <div> Loading .... </div>
+        {getTransactionLoading ? (
+          <Spinner />
         ) : (
           <>
             <div className="card-body">
@@ -359,9 +388,19 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
                         <button
                           type="button"
                           className="btn btn-primary float-right mr-2"
-                          onClick={downloadAllFile}
+                          disabled={getFilesLoading}
+                          onClick={() => downloadAllFile()}
                         >
-                          <i className="fas fa-download"></i> DOWNLOAD FILE
+                          {getFilesLoading ? (
+                            <>
+                              <i class="fas fa-spinner fa-spin"></i>
+                              {" ... DOWNLOADING"}
+                            </>
+                          ) : (
+                            <>
+                              <i class="fas fa-download"></i> DOWNLOAD FILE
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -534,11 +573,22 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami.
                       {productFiles.map((product_file) => (
                         <li key={product_file.id}>
                           <button
+                            type="button"
                             className="btn btn-primary btn-xs"
-                            onClick={() => downloadFileProduct(product_file)}
+                            disabled={getFileLoading}
+                            onClick={(e) => downloadFileProduct(product_file)}
                           >
-                            <i className="far fa-fw fa-file-archive"></i>{" "}
-                            {product_file.filename}
+                            {getFileLoading ? (
+                              <>
+                                <i class="fas fa-spinner fa-spin"></i>
+                                {" ... DOWNLOADING"}
+                              </>
+                            ) : (
+                              <>
+                                <i className="far fa-fw fa-file-archive"></i>{" "}
+                                {product_file.filename}
+                              </>
+                            )}
                           </button>
                         </li>
                       ))}

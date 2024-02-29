@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import ContentHeader from "../../Component/ContentHeader";
@@ -7,65 +6,53 @@ import {
   showError,
   showSuccess,
 } from "../../Component/Template/Msg";
-import { useRecoilValue } from "recoil";
-import { tokenAtom } from "../../store/user";
-import { serverIp } from "../../store/setting";
+import { getStsGeneral } from "../../Component/Helpers";
+import { useDispatch, useSelector } from "react-redux";
+import Spinner from "../loading";
+import { deleteCategory, getCategories } from "../../actions/categoryAction";
 
 function Category(props) {
-  const [categories, setCategory] = useState([]);
-  const [filteredCategory, setFilteredCategory] = useState(categories);
-  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState(categories);
   const [searchBox, setSearchBox] = useState("");
-  const token = useRecoilValue(tokenAtom);
-  const ip = useRecoilValue(serverIp);
-
-  const getCategory = async () => {
-    setLoading(true);
-    try {
-      let { data } = await axios.get(`${ip}/category/getall`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      });
-      setCategory(data.data);
-      setLoading(false);
-    } catch (e) {
-      console.log(e.message);
-      setLoading(false);
-    }
-  };
+  const dispatch = useDispatch();
 
   const onDeleteHandler = (category_id) => {
     showConfirm(async function(confirmed) {
       if (confirmed) {
-        try {
-          setLoading(true);
-          let { data } = await axios.delete(`${ip}/category/${category_id}`, {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-          if (data.isSuccess) {
-            showSuccess(data.msg);
-            getCategory();
-          } else {
+        dispatch(deleteCategory(category_id))
+          .then(({ msg }) => {
+            showSuccess(msg);
+            getListCategories();
+          })
+          .catch(({ data }) => {
             showError(data.msg);
-          }
-          setLoading(false);
-        } catch (e) {
-          console.log(e.message);
-          setLoading(false);
-        }
+          });
       }
     });
   };
 
+  const { getCategoriesLoading, getCategoryLoading } = useSelector(
+    (state) => state.CategoryReducer
+  );
+
+  const getListCategories = () => {
+    dispatch(getCategories())
+      .then((data) => {
+        setCategories(data.data);
+      })
+      .catch((err) => {
+        console.error(err);
+        showError(err.message);
+      });
+  };
+
   useEffect(() => {
-    getCategory();
+    getListCategories();
   }, []);
 
   useEffect(() => {
-    setFilteredCategory(
+    setFilteredCategories(
       categories.filter(
         (category) =>
           category.category_name
@@ -82,7 +69,7 @@ function Category(props) {
       <section className="content">
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">Category</h3>
+            <h3 className="card-title">List Categories</h3>
           </div>
 
           <div className="card">
@@ -97,54 +84,76 @@ function Category(props) {
                   onChange={(e) => setSearchBox(e.target.value)}
                   name="searchBox"
                   className="form-control"
-                  placeholder="Search category"
+                  placeholder="Search Category"
                 />
               </div>
             </div>
 
             <div className="card-body">
-              {loading ? (
-                <div> Loading .... </div>
-              ) : (
-                <table
-                  id="tableProducts"
-                  className="table table-striped table-sm"
-                >
-                  <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Category ID</th>
-                      <th>Category Name</th>
-                      <th>Action</th>
+              <table
+                id="tableCategory"
+                className="table table-striped table-sm"
+              >
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Category ID</th>
+                    <th>Name</th>
+                    <th>Seq</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getCategoriesLoading || getCategoryLoading ? (
+                    <tr className="hover:bg-gray-50">
+                      <td colSpan={6}>
+                        <Spinner />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCategory.map((category, index) => (
-                      <tr key={category.category_id}>
-                        <td>{index + 1}</td>
-                        <td>{category.category_id}</td>
-                        <td>{category.category_name}</td>
-                        <td>
-                          <NavLink
-                            to={`/category/edit/${category.category_id}`}
-                            className="btn bg-primary btn-xs mr-2"
-                          >
-                            <i className="fas fa-trash"></i> Edit
-                          </NavLink>
-                          <button
-                            onClick={() =>
-                              onDeleteHandler(category.category_id)
-                            }
-                            className="btn bg-danger btn-xs"
-                          >
-                            <i className="fas fa-trash"></i> Delete
-                          </button>
+                  ) : filteredCategories ? (
+                    filteredCategories.length < 1 ? (
+                      <tr className="hover:bg-gray-50">
+                        <td colSpan={6}>
+                          <p>No Data</p>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    ) : (
+                      filteredCategories.map((category, index) => (
+                        <tr key={category.category_id}>
+                          <td>{index + 1}</td>
+                          <td>{category.category_id}</td>
+                          <td>{category.category_name}</td>
+                          <td>{category.seq}</td>
+                          <td>{getStsGeneral(category.status)}</td>
+                          <td>
+                            <NavLink
+                              to={`/category/edit/${category.category_id}`}
+                              className="btn bg-primary btn-xs mr-2"
+                            >
+                              <i className="fas fa-edit"></i> Edit
+                            </NavLink>
+                            <button
+                              onClick={() =>
+                                onDeleteHandler(category.category_id)
+                              }
+                              className="btn bg-danger btn-xs"
+                            >
+                              <i className="fas fa-trash"></i> Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )
+                  ) : (
+                    <tr className="hover:bg-gray-50">
+                      <td colSpan={6}>
+                        <p>Problem when error transaction data</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

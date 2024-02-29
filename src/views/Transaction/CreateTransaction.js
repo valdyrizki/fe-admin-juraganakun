@@ -1,7 +1,5 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
-import { useRecoilValue } from "recoil";
 import ContentHeader from "../../Component/ContentHeader";
 import { decimalFormatter, downloadFile } from "../../Component/Helpers";
 import {
@@ -9,16 +7,23 @@ import {
   showError,
   showSuccess,
 } from "../../Component/Template/Msg";
-import { getCategory } from "../../store/category";
-import { serverIp } from "../../store/setting";
-import { tokenAtom } from "../../store/user";
+import { useDispatch, useSelector } from "react-redux";
+import { getCategoryOptions } from "../../actions/categoryAction";
+import Spinner from "../loading";
+import SelectBox from "../../Component/Selectbox";
+import { getProductOptionsByCategory } from "../../actions/productAction";
+import { getBankOptions } from "../../actions/bankAction";
+import { getPreviewFiles } from "../../actions/fileAction";
+import {
+  createTransaction,
+  getDownloadFileByCode,
+} from "../../actions/transactionAction";
 
 function CreateTransaction(props) {
+  const dispatch = useDispatch();
+
   //dispatcer & state metode hook
   const history = useHistory();
-  const token = useRecoilValue(tokenAtom);
-  const ip = useRecoilValue(serverIp);
-  const categories = useRecoilValue(getCategory);
   const [order, setOrder] = useState({
     qty: 1,
     price: 0,
@@ -28,7 +33,11 @@ function CreateTransaction(props) {
   const [totalPrice, setTotalPrice] = useState(0);
   const [carts, setCarts] = useState([]);
   const [productFiles, setProductFiles] = useState([]);
+  const [categoryOptions, setCateryOptions] = useState([]);
+  const [productOptions, setProductOptions] = useState([]);
   const [inputs, setInputs] = useState({
+    product_id: "",
+    category_id: "",
     client_name: "",
     phone_number: "",
     email: "viaadm@juraganakun.com",
@@ -37,8 +46,16 @@ function CreateTransaction(props) {
     description: "",
     products: [],
   });
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+
+  const { getCategoriesLoading } = useSelector(
+    (state) => state.CategoryReducer
+  );
+
+  const { getProductsLoading } = useSelector((state) => state.ProductReducer);
+  const { getBanksLoading } = useSelector((state) => state.BankReducer);
+  const { getTransactionLoading } = useSelector(
+    (state) => state.TransactionReducer
+  );
 
   const onChangeQty = (e) => {
     let subTotal = order.price * e.target.value;
@@ -47,14 +64,25 @@ function CreateTransaction(props) {
 
   const onChangeCategory = (e) => {
     setOrder({ ...order, [e.target.name]: e.target.value });
+
+    setInputs({
+      ...inputs,
+      [e.target.name]: e.target.value,
+    });
+
     getProductsByCategory(e.target.value);
   };
 
   const onChangeProduct = (e) => {
+    setInputs({
+      ...inputs,
+      [e.target.name]: e.target.value,
+    });
+
     let selectedIndex = e.target.selectedIndex;
     let selectedLabel = e.target[selectedIndex].text;
-    let selectedPrice = e.target[selectedIndex].getAttribute("price");
-    let selectedStock = e.target[selectedIndex].getAttribute("stock");
+    let selectedPrice = e.target[selectedIndex].getAttribute("attrb1"); //price
+    let selectedStock = e.target[selectedIndex].getAttribute("attrb2"); //stock
     let subTotal = selectedPrice * order.qty;
 
     setStock(selectedStock);
@@ -75,63 +103,52 @@ function CreateTransaction(props) {
     //upload stock handler
     e.preventDefault();
     inputs.products = carts;
+    console.log(inputs);
     showConfirm(async function(confirmed) {
       if (confirmed) {
-        setLoading(true);
-        try {
-          let { data } = await axios.post(`${ip}/transaction/store`, inputs, {
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          });
-          if (data.isSuccess) {
+        dispatch(createTransaction(inputs))
+          .then((data) => {
             showSuccess(data.msg);
             history.push("/transaction");
-            // refreshProducts()
-          } else {
-            console.error(data.data);
+          })
+          .catch(({ data }) => {
             showError(data.msg);
-          }
-        } catch (e) {
-          console.log(e.getMessage);
-        }
-        setLoading(false);
+          });
       }
     });
   };
 
   const getBanks = async () => {
-    setLoading(true);
-    try {
-      let { data } = await axios.get(`${ip}/bank/getall`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
+    dispatch(getBankOptions())
+      .then((data) => {
+        setBanks(data);
+      })
+      .catch(({ data }) => {
+        showError(data.msg);
       });
-      setBanks(data.data);
-    } catch (e) {
-      console.log(e.message);
-    }
-    setLoading(false);
+
+    // setLoading(true);
+    // try {getProductByCategory
+    //   let { data } = await axios.get(`${ip}/bank/getall`, {
+    //     headers: {
+    //       Authorization: "Bearer " + token,
+    //     },
+    //   });
+    //   setBanks(data.data);
+    // } catch (e) {
+    //   console.log(e.message);
+    // }
+    // setLoading(false);
   };
 
   const getProductsByCategory = async (category_id) => {
-    setLoading(true);
-    try {
-      let { data } = await axios.get(`${ip}/product/getbycategory`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        params: {
-          category_id: category_id,
-        },
+    dispatch(getProductOptionsByCategory(category_id))
+      .then((data) => {
+        setProductOptions(data);
+      })
+      .catch(({ data }) => {
+        showError(data.msg);
       });
-      let obj = data.data;
-      setProducts(obj);
-    } catch (e) {
-      console.log(e.message);
-    }
-    setLoading(false);
   };
 
   const addProduct = async () => {
@@ -142,46 +159,65 @@ function CreateTransaction(props) {
       setTotalPrice(totalPrice + order.subTotal);
 
       //get preview file
-      try {
-        let { data } = await axios.get(`${ip}/file/getpreviewfile`, {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-          params: {
-            product_id: order.product_id,
-            qty: parseInt(order.qty),
-          },
+      dispatch(getPreviewFiles(order.product_id, parseInt(order.qty)))
+        .then((data) => {
+          // console.log("console.log(data);");
+          // console.log(data);
+          setProductFiles(productFiles.concat(data.data));
+        })
+        .catch(({ data }) => {
+          showError(data.msg);
         });
-        setProductFiles(productFiles.concat(data.data));
-      } catch (e) {
-        console.log(e.message);
-      }
+
+      // try {
+      //   let { data } = await axios.get(`${ip}/file/getpreviewfile`, {
+      //     headers: {
+      //       Authorization: "Bearer " + token,
+      //     },
+      //     params: {
+      //       product_id: order.product_id,
+      //       qty: parseInt(order.qty),
+      //     },
+      //   });
+      //   setProductFiles(productFiles.concat(data.data));
+      // } catch (e) {
+      //   console.log(e.message);
+      // }
     }
   };
 
   const downloadFileProduct = async (e, product_file) => {
     e.preventDefault();
-    try {
-      let response = await axios.post(
-        `${ip}/product/downloadbycode`,
-        { code: product_file.code },
-        {
-          responseType: "arraybuffer",
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      downloadFile(response, product_file.filename);
-    } catch (e) {
-      console.log(e.getMessage);
-    }
+
+    dispatch(getDownloadFileByCode(product_file.code))
+      .then((data) => {
+        downloadFile(data, product_file.filename);
+      })
+      .catch((err) => {
+        console.error(err);
+        showError(err.message);
+      });
   };
 
   useEffect(() => {
+    dispatch(getCategoryOptions())
+      .then((data) => {
+        setCateryOptions(data);
+      })
+      .catch(({ data }) => {
+        showError(data.msg);
+      });
+
     getBanks();
   }, []);
+
+  useEffect(() => {
+    console.log(inputs);
+
+    if (inputs.category_id != null) {
+      getProductsByCategory(inputs.category_id);
+    }
+  }, [inputs.category_id]);
 
   return (
     <div className="content-wrapper">
@@ -196,50 +232,30 @@ function CreateTransaction(props) {
           </div>
           <form onSubmit={onSubmitHandler}>
             <div className="card-body">
-              {loading ? (
-                <div> Loading . . .</div>
+              {getTransactionLoading ? (
+                <Spinner />
               ) : (
                 <>
                   <div className="row">
                     <div className="form-group col-3">
-                      <small>Category</small>
-                      <select
-                        onChange={(e) => onChangeCategory(e)}
-                        className="form-control form-control-sm "
+                      <SelectBox
                         id="category_id"
-                        name="category_id"
-                        placeholder="Category"
-                        value={order.category_id}
-                      >
-                        <option value="DEFAULT">-- Select Category --</option>
-                        {categories.map((category) => (
-                          <option
-                            key={category.category_id}
-                            value={category.category_id}
-                          >{`${category.category_id} - ${category.category_name}`}</option>
-                        ))}
-                      </select>
+                        options={categoryOptions}
+                        defaultValue={inputs.category_id}
+                        label="Category"
+                        loading={getCategoriesLoading}
+                        onChange={(e) => onChangeCategory(e)}
+                      />
                     </div>
                     <div className="form-group col-5">
-                      <small>Product</small>
-                      <select
-                        onChange={(e) => onChangeProduct(e)}
-                        className="form-control form-control-sm "
+                      <SelectBox
                         id="product_id"
-                        name="product_id"
-                        placeholder="Product"
-                        value={order.product_id}
-                      >
-                        <option value="DEFAULT">-- Select Product --</option>
-                        {products.map((product) => (
-                          <option
-                            key={product.product_id}
-                            value={product.product_id}
-                            price={product.price}
-                            stock={product.stock}
-                          >{`${product.product_id} - ${product.product_name}`}</option>
-                        ))}
-                      </select>
+                        options={productOptions}
+                        defaultValue={inputs.product_id}
+                        label="Product"
+                        loading={getProductsLoading}
+                        onChange={(e) => onChangeProduct(e)}
+                      />
                     </div>
                     <div className="form-group col-1">
                       <small>Stock</small>
@@ -313,22 +329,19 @@ function CreateTransaction(props) {
                       />
                     </div>
                     <div className="form-group col-2">
-                      <small>Bank Via</small>
-                      <select
-                        className="form-control form-control-sm "
+                      <SelectBox
                         id="bank"
-                        name="bank"
-                        placeholder="Bank Via"
-                        value={inputs.bank}
-                        onChange={(e) => inputChange(e)}
-                      >
-                        {banks.map((bank) => (
-                          <option
-                            key={bank.id}
-                            value={bank.id}
-                          >{`${bank.name}`}</option>
-                        ))}
-                      </select>
+                        options={banks}
+                        defaultValue={inputs.bank}
+                        label="Bank Via"
+                        loading={getBanksLoading}
+                        onChange={(e) =>
+                          setInputs({
+                            ...inputs,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                     <div className="form-group col-2">
                       <small>Coupon</small>
