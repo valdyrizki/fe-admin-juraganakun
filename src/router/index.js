@@ -31,6 +31,7 @@ import CreateUser from "../views/User/CreateUser";
 import EditUser from "../views/User/EditUser";
 import GenerateImage from "../views/Replicate/GenerateImage";
 import EnhanceImage from "../views/Replicate/EnhanceImage";
+import TextToFile from "../views/Tool/TextToFile";
 
 function Router(props) {
   return (
@@ -247,6 +248,14 @@ function Router(props) {
           <Authenticated>
             <Template>
               <EnhanceImage />
+            </Template>
+          </Authenticated>
+        </Route>
+
+        <Route exact path="/tool/text-to-file">
+          <Authenticated>
+            <Template>
+              <TextToFile />
             </Template>
           </Authenticated>
         </Route>
