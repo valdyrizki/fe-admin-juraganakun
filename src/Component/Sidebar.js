@@ -132,6 +132,24 @@ function AppMenu(props) {
                 </ul>
               </li>
 
+              <li className="nav-item">
+                <a href="/#" className="nav-link">
+                  <i className="fas fa-tools nav-icon"></i>
+                  <p>
+                    Tool
+                    <i className="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul className="nav nav-treeview">
+                  <li className="nav-item">
+                    <NavLink to={"/tool/text-to-file"} className="nav-link">
+                      <i className="far fa-circle nav-icon"></i>
+                      <p>Text To File</p>
+                    </NavLink>
+                  </li>
+                </ul>
+              </li>
+
               {/* <li className="nav-item">
                 <NavLink to="/ai" className="nav-link">
                   <i className="fas fa-brain nav-icon"></i>

@@ -1,8 +1,7 @@
 import axios from "axios";
-import { getBaseUrl } from "./Component/Helpers";
 
 export default axios.create({
-  baseURL: getBaseUrl() + "api",
+  baseURL: process.env.REACT_APP_BE_URL + "/api",
   headers: {
     "Content-Type": "application/json",
   },
