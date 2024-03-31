@@ -12,44 +12,71 @@ import {
   getStsGeneral,
   getStsProduct,
 } from "../../Component/Helpers";
-import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../loading";
-import { deleteProduct, getProducts } from "../../actions/productAction";
+import ProductService from "../../services/ProductService";
 
 function Product(props) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [searchBox, setSearchBox] = useState("");
-  const dispatch = useDispatch();
+  const [productsLoading, setProductsLoading] = useState(false);
 
   const onDeleteHandler = (product_id) => {
     showConfirm(async function(confirmed) {
       if (confirmed) {
-        dispatch(deleteProduct(product_id))
-          .then(({ msg }) => {
-            showSuccess(msg);
+        setProductsLoading(true);
+        try {
+          const { data } = await ProductService.deleteProduct(product_id);
+          console.log(data);
+          if (data.success) {
+            showSuccess(data.message);
             getListProducts();
-          })
-          .catch(({ data }) => {
-            showError(data.msg);
-          });
+          } else {
+            let response = data.response.data;
+            showError(response.message);
+          }
+        } catch ({ response }) {
+          try {
+            if (response.data.message) {
+              showError(response.data.message);
+            } else {
+              showError(response);
+            }
+          } catch (error) {
+            console.error(error);
+            showError("Error sistem, hubungi admin WA : +6283818213645");
+          }
+        }
+        setProductsLoading(false);
       }
     });
   };
 
-  const { getProductsLoading, getProductLoading } = useSelector(
-    (state) => state.ProductReducer
-  );
-
-  const getListProducts = () => {
-    dispatch(getProducts())
-      .then((data) => {
+  const getListProducts = async () => {
+    //request api
+    setProductsLoading(true);
+    try {
+      const { data } = await ProductService.getAll(); //axios call API
+      console.log(data);
+      if (data.success) {
         setProducts(data.data);
-      })
-      .catch((err) => {
-        console.error(err);
-        showError(err.message);
-      });
+      } else {
+        let response = data.response.data;
+        showError(response.message);
+      }
+    } catch ({ response }) {
+      try {
+        if (response.data.message) {
+          showError(response.data.message);
+        } else {
+          showError(response);
+        }
+      } catch (error) {
+        console.error(error);
+        showError("Error sistem, hubungi admin WA : +6283818213645");
+      }
+    }
+    setProductsLoading(false);
   };
 
   useEffect(() => {
@@ -111,7 +138,7 @@ function Product(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {getProductsLoading || getProductLoading ? (
+                  {productsLoading ? (
                     <tr className="hover:bg-gray-50">
                       <td colSpan={9}>
                         <Spinner />
