@@ -7,23 +7,22 @@ import {
   showError,
   showSuccess,
 } from "../../Component/Template/Msg";
-import { useDispatch, useSelector } from "react-redux";
 import Spinner from "../loading";
-import { createProduct } from "../../actions/productAction";
-import { getCategories } from "../../actions/categoryAction";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { decimalFormatter } from "../../Component/Helpers";
+import InputField from "../../Component/Forms/InputField";
+import CategoryService from "../../services/CategoryService";
+import ProductService from "../../services/ProductService";
 
 function CreateProduct(props) {
   //dispatcer & state metode hook
   const history = useHistory();
-  const dispatch = useDispatch();
   const [imageName, setImageName] = useState("Choose Image");
   const [srcImage, setSrcImage] = useState("");
 
-  const [formProduct, setFormProduct] = useState({
-    product_id: "",
+  const defaultProductValue = {
+    category_id: "",
     product_id: "",
     product_name: "",
     stock: 0,
@@ -31,32 +30,58 @@ function CreateProduct(props) {
     price: 0,
     status: 1,
     distributor: "PRIVATE",
-    descriptionProduct: "",
-    seq: "",
-  });
+    description: "",
+  };
 
-  const onSubmitHandler = (e) => {
+  const [productForm, setProductForm] = useState(defaultProductValue);
+  const [error, setError] = useState({});
+  const [productLoading, setProductLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     showConfirm(async function(confirmed) {
       if (confirmed) {
-        dispatch(createProduct(formProduct))
-          .then(({ msg }) => {
-            showSuccess(msg);
+        setProductLoading(true);
+        try {
+          const { data } = await ProductService.createProduct(productForm);
+          if (data.success) {
+            showSuccess(data.message);
             history.push("/product");
-          })
-          .catch(({ data }) => {
-            showError(data.msg);
-          });
+          } else {
+            let response = data.response.data;
+            showError(response.message);
+          }
+        } catch ({ response }) {
+          try {
+            if (response.data.error) {
+              setError(response.data.error);
+            } else if (response.data.message) {
+              showError(response.data.message);
+            } else {
+              showError(response);
+            }
+          } catch (error) {
+            console.error(error);
+            showError("Error sistem, hubungi admin WA : +6283818213645");
+          }
+        }
+        setProductLoading(false);
       }
     });
   };
+
   const onChangeDesc = (value) => {
-    setFormProduct({ ...formProduct, descriptionProduct: value });
+    setProductForm({ ...productForm, description: value });
   };
+
   const onChangeFile = (e) => {
     let selectedFile = e.target.files[0];
+    console.log(e.target.name);
+    console.log(selectedFile);
     setImageName(selectedFile.name);
-    setFormProduct({ ...formProduct, [e.target.name]: selectedFile });
+    setProductForm({ ...productForm, [e.target.name]: selectedFile });
     // load preview
     const objectUrl = URL.createObjectURL(selectedFile);
     setSrcImage(objectUrl);
@@ -69,19 +94,35 @@ function CreateProduct(props) {
     setSrcImage("");
   };
 
-  const {
-    getCategoriesError,
-    getCategoriesLoading,
-    getCategoriesResult,
-  } = useSelector((state) => state.CategoryReducer);
+  const getCategories = async () => {
+    //request api
+    setCategoriesLoading(true);
+    try {
+      const { data } = await CategoryService.getAll(); //axios call API
+      if (data.success) {
+        setCategories(data.data);
+      } else {
+        let response = data.response.data;
+        showError(response.message);
+      }
+    } catch ({ response }) {
+      try {
+        if (response.data.message) {
+          showError(response.data.message);
+        } else {
+          showError(response);
+        }
+      } catch (error) {
+        console.error(error);
+        showError("Error sistem, hubungi admin WA : +6283818213645");
+      }
+    }
+    setCategoriesLoading(false);
+  };
 
   useEffect(() => {
-    dispatch(getCategories());
+    getCategories();
   }, []);
-
-  // useEffect(() => {
-  //   console.log(formProduct);
-  // });
 
   return (
     <div className="content-wrapper">
@@ -97,26 +138,8 @@ function CreateProduct(props) {
           <form onSubmit={onSubmitHandler}>
             <div className="card-body">
               <div className="row">
-                <div className="form-group col-2">
-                  <small>Product ID</small>
-                  <input
-                    type="text"
-                    className="form-control form-control-sm "
-                    id="product_id"
-                    name="product_id"
-                    placeholder="Product ID"
-                    maxLength="4"
-                    value={formProduct.product_id}
-                    onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
-                        [e.target.name]: e.target.value,
-                      })
-                    }
-                  />
-                </div>
                 <div className="form-group col-3">
-                  {getCategoriesLoading ? (
+                  {categoriesLoading ? (
                     <Spinner />
                   ) : (
                     <>
@@ -126,54 +149,61 @@ function CreateProduct(props) {
                         id="category_id"
                         name="category_id"
                         placeholder="Category"
-                        value={formProduct.category_id}
+                        value={productForm.category_id}
                         onChange={(e) =>
-                          setFormProduct({
-                            ...formProduct,
+                          setProductForm({
+                            ...productForm,
                             [e.target.name]: e.target.value,
                           })
                         }
                       >
                         <option value="DEFAULT">-- Select Category --</option>
-                        {getCategoriesResult.data ? (
-                          getCategoriesResult.data.length < 1 ? (
-                            <option disabled={true}>No Data</option>
-                          ) : (
-                            getCategoriesResult.data.map((category) => (
-                              <option
-                                key={category.category_id}
-                                value={category.category_id}
-                              >
-                                {category.category_id +
-                                  " - " +
-                                  category.category_name}
-                              </option>
-                            ))
-                          )
-                        ) : getCategoriesError ? (
-                          <option disabled={true}>Error</option>
+                        {categories.length < 1 ? (
+                          <option disabled={true}>No Data</option>
                         ) : (
-                          <option disabled={true}>
-                            Error When Parsing Data
-                          </option>
+                          categories.map((category) => (
+                            <option
+                              key={category.category_id}
+                              value={category.category_id}
+                            >
+                              {category.category_id +
+                                " - " +
+                                category.category_name}
+                            </option>
+                          ))
                         )}
                       </select>
                     </>
                   )}
                 </div>
-                <div className="form-group col-7">
-                  <small>Product Name</small>
-                  <input
+                <div className="form-group col-2">
+                  <InputField
                     type="text"
-                    className="form-control form-control-sm "
+                    id="product_id"
+                    name="product_id"
+                    placeholder="Product ID"
+                    label="Product ID"
+                    error={error.product_id}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        [e.target.name]: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-group col-7">
+                  <InputField
+                    type="text"
                     id="product_name"
                     name="product_name"
                     placeholder="Product Name"
+                    label="Product Name"
+                    error={error.product_name}
                     maxLength="50"
-                    value={formProduct.product_name}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: e.target.value,
                       })
                     }
@@ -182,54 +212,53 @@ function CreateProduct(props) {
               </div>
               <div className="row">
                 <div className="form-group col-1">
-                  <small>Stock</small>
-                  <input
+                  <InputField
                     type="number"
-                    className="form-control form-control-sm "
                     id="stock"
                     name="stock"
                     placeholder="Stock"
+                    label="Stock"
+                    error={error.stock}
+                    value={productForm.stock}
                     maxLength="4"
-                    // disabled={flgAutoStock}
                     disabled={true}
-                    value={formProduct.stock}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: e.target.value,
                       })
                     }
                   />
                 </div>
                 <div className="form-group col-3">
-                  <small>Cogs</small>
-                  <input
+                  <InputField
                     type="text"
-                    className="form-control form-control-sm "
                     id="cogs"
                     name="cogs"
                     placeholder="Basic Price"
-                    value={formProduct.cogs}
+                    label="Basic Price"
+                    error={error.cogs}
+                    value={productForm.cogs}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: decimalFormatter(e.target.value),
                       })
                     }
                   />
                 </div>
                 <div className="form-group col-3">
-                  <small>Price</small>
-                  <input
+                  <InputField
                     type="text"
-                    className="form-control form-control-sm "
                     id="price"
                     name="price"
                     placeholder="Sell Price"
-                    value={formProduct.price}
+                    label="Sell Price"
+                    error={error.price}
+                    value={productForm.price}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: decimalFormatter(e.target.value),
                       })
                     }
@@ -242,10 +271,10 @@ function CreateProduct(props) {
                     id="status"
                     name="status"
                     placeholder="Status"
-                    value={formProduct.status}
+                    value={productForm.status}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: e.target.value,
                       })
                     }
@@ -255,18 +284,18 @@ function CreateProduct(props) {
                   </select>
                 </div>
                 <div className="form-group col-3">
-                  <small>Distributor</small>
-                  <input
+                  <InputField
                     type="text"
-                    className="form-control form-control-sm "
                     id="distributor"
                     name="distributor"
                     placeholder="Distributor"
+                    label="Distributor"
+                    error={error.distributor}
                     maxLength={100}
-                    value={formProduct.distributor}
+                    value={productForm.distributor}
                     onChange={(e) =>
-                      setFormProduct({
-                        ...formProduct,
+                      setProductForm({
+                        ...productForm,
                         [e.target.name]: e.target.value,
                       })
                     }
@@ -279,10 +308,10 @@ function CreateProduct(props) {
                   <ReactQuill
                     onChange={onChangeDesc}
                     theme="snow"
-                    id="descriptionProduct"
-                    name="descriptionProduct"
+                    id="description"
+                    name="description"
                     style={{ height: "200px", marginBottom: "20px" }}
-                    value={formProduct.descriptionProduct}
+                    value={productForm.description}
                   />
                   {/* <input type="text" onChange={(e) => onChangeText(e)} className="form-control form-control-sm " id="description" name="description" placeholder="Description"/> */}
                 </div>
@@ -295,7 +324,7 @@ function CreateProduct(props) {
                     className="custom-file-input"
                     id="image"
                     name="image"
-                    value={formProduct.description}
+                    value=""
                   />
                   <label className="custom-file-label" id="fileName">
                     {imageName}
@@ -330,8 +359,21 @@ function CreateProduct(props) {
               </div>
             </div>
             <div className="card-footer">
-              <button type="submit" className="btn btn-primary">
-                Submit
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={productLoading}
+              >
+                {productLoading ? (
+                  <>
+                    <i class="fas fa-spinner fa-spin"></i>
+                    {" ... Creating Product"}
+                  </>
+                ) : (
+                  <>
+                    <i class="fas fa-save"></i> Save Product
+                  </>
+                )}
               </button>
             </div>
           </form>

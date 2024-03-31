@@ -393,12 +393,12 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
                         >
                           {getFilesLoading ? (
                             <>
-                              <i class="fas fa-spinner fa-spin"></i>
+                              <i className="fas fa-spinner fa-spin"></i>
                               {" ... DOWNLOADING"}
                             </>
                           ) : (
                             <>
-                              <i class="fas fa-download"></i> DOWNLOAD FILE
+                              <i className="fas fa-download"></i> DOWNLOAD FILE
                             </>
                           )}
                         </button>
@@ -580,7 +580,7 @@ untuk tips iklan, perawatan dan jika ada kendala, bisa hubungi tim support kami`
                           >
                             {getFileLoading ? (
                               <>
-                                <i class="fas fa-spinner fa-spin"></i>
+                                <i className="fas fa-spinner fa-spin"></i>
                                 {" ... DOWNLOADING"}
                               </>
                             ) : (

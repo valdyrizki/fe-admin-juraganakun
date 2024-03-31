@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import ContentHeader from "../../Component/ContentHeader";
 import JSZip from "jszip";
+import InputField from "../../Component/Forms/InputField";
 
 function TextToFile(props) {
   const [ttfData, setTtfData] = useState({
     text: "",
     delimiter: "",
+    delimiterName: "", //Delimiter pemisah nama file
+    labelName: "",
   });
   const [ttfList, setTtfList] = useState([]);
 
@@ -15,9 +18,9 @@ function TextToFile(props) {
     let listData = [];
     list.map((ttf, index) => {
       //Get filename
-      let splitData = ttf.split("\n");
-      let rowName = splitData[0].split(":");
-      let filename = `[FB] ${rowName[1]}.txt`;
+      let splitData = ttf.split("\n"); //Displit per baris
+      let rowName = splitData[0].split(ttfData.delimiterName); //Ambil baris paling atas untuk dijadikan nama
+      let filename = `[${ttfData.labelName}] ${rowName[1]}.txt`; //Set nama berdasarkan baris paling atas dipisah dengan {delimiterName}
       console.log(filename);
 
       const data = {
@@ -69,7 +72,7 @@ function TextToFile(props) {
               <form onSubmit={ttfHandler}>
                 <div className="card-body">
                   <div className="row">
-                    <div className="form-group col-8">
+                    <div className="form-group col-4">
                       <small>Text</small>
                       <textarea
                         className="form-control form-control-sm "
@@ -85,7 +88,7 @@ function TextToFile(props) {
                         }
                       />
                     </div>
-                    <div className="form-group col-4">
+                    <div className="form-group col-2">
                       <small>Delimiter</small>
                       <textarea
                         className="form-control form-control-sm "
@@ -93,6 +96,36 @@ function TextToFile(props) {
                         name="delimiter"
                         placeholder="Delimiter"
                         value={ttfData.delimiter}
+                        onChange={(e) =>
+                          setTtfData({
+                            ...ttfData,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group col-2">
+                      <InputField
+                        type="text"
+                        id="delimiterName"
+                        name="delimiterName"
+                        placeholder="Delimiter Name"
+                        label="Delimiter Name"
+                        onChange={(e) =>
+                          setTtfData({
+                            ...ttfData,
+                            [e.target.name]: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group col-2">
+                      <InputField
+                        type="text"
+                        id="labelName"
+                        name="labelName"
+                        placeholder="Label Name"
+                        label="Label Name"
                         onChange={(e) =>
                           setTtfData({
                             ...ttfData,

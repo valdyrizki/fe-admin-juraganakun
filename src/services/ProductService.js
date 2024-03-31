@@ -19,6 +19,16 @@ const getProductById = (product_id) => {
     },
   });
 };
+const getProductByCode = (product_id) => {
+  return http.get("/product/getbycode", {
+    headers: {
+      Authorization: "Bearer " + getToken(),
+    },
+    params: {
+      id: product_id,
+    },
+  });
+};
 const getProductByCategory = (category_id) => {
   return http.get("/product/getbycategory", {
     headers: {
@@ -40,15 +50,16 @@ const createProduct = (data) => {
 };
 
 const updateProduct = (data) => {
-  return http.put("/product", data, {
+  return http.post("/product/update", data, {
     headers: {
       Authorization: "Bearer " + getToken(),
+      "Content-Type": "multipart/form-data",
     },
   });
 };
 
 const deleteProduct = (id) => {
-  return http.delete("/product", {
+  return http.delete("/product/destroy", {
     headers: {
       Authorization: "Bearer " + getToken(),
     },
@@ -70,6 +81,7 @@ const storeStock = (data) => {
 const ProductService = {
   getAll,
   getProductById,
+  getProductByCode,
   createProduct,
   deleteProduct,
   updateProduct,
